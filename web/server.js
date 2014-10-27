@@ -23,7 +23,8 @@ var QueryString = require('querystring');
 var XmlToJson = require('xml2js');
 var uploadsFolder = rootPath + '/uploads/';
 var members = [];
-var membersFolder = rootPath + '/web/data/members';
+var webDataFolder = rootPath + '/web/data';
+var membersFolder = webDataFolder + '/members';
 function Resource(obj){
 	this.layout = 'default';
 	this.title = config.site.title;
@@ -46,6 +47,7 @@ function createFolderIfDoesntExist(folder){
 	}
 }
 createFolderIfDoesntExist(config.dataPath);
+createFolderIfDoesntExists(webDataFolder);
 createFolderIfDoesntExist(uploadsFolder);
 createFolderIfDoesntExist(membersFolder);
 express.response.represent = require('./withRepresent')(represent, config);
