@@ -1,0 +1,13 @@
+<div id="profile" class="row profile">
+	<h1 id="model.username"><%= model.name %></h1>
+	<img class="img-circle avatar" id="model.avatar" src="<%= model.avatar %>" />
+	<div id="model.page"><%- model.page %></div>
+</div>
+<style>
+body{
+	background-image: url("<%= model.background%>");
+}
+</style>
+<script>
+	var member = <%- JSON.stringify(model)%>;
+</script>

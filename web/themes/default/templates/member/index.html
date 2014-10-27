@@ -1,0 +1,24 @@
+<% model.forEach(function(member){%>
+	<div class="member" data-id="<%= member._id %>">
+		<figure>
+			<a href="/members/<%= member.username %>" title="<%= member.name %>" itemprop="url"><img src="<%= member.avatar %>" class="img-circle avatar" /></a>
+			<figcaption><a href="/members/<%= member.username %>" title="<%= member.name %>" itemprop="url"><span itemprop="name"><%= member.name %></span></a></figcaption>			
+		</figure>
+		<% if(request.user && member.canEdit(request.user)){%>
+		<time datetime="<%= member.w3cFormat(member.active) %>" itemprop="active"><%= member.humanFriendlyDate(new Date(member.active)) %></time>
+		<form method="get" action="/member/<%= member._id %>">
+			<button type="submit">Edit</button>
+		</form>
+		<form method="post">
+			<input type="hidden" name="_id" value="<%= member._id%>" />
+			<input type="hidden" name="_method" value="delete" />
+			<button type="submit">Delete</button>
+		</form>
+		<% }%>
+		<% if(request.user && member.canEdit(request.user)){%>
+		<section itemprop="articleBody">
+			<%- member.page %>
+		</section>
+		<%}%>
+	</div>
+<%})%>
