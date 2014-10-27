@@ -9,7 +9,7 @@
 			this.container.querySelector('h1').innerHTML = v.name;
 			this.container.querySelector('img').src = v.avatar;
 			this.container.querySelector('div').innerHTML = v.page;
-			document.body.style['background-image'] = 'url("' + v.background + '");}';
+			document.body.style['backgroundImage'] = 'url("' + v.background + '")';
 		}
 	};
 	n.View.Mixin(n.View.PageFlipper.prototype);

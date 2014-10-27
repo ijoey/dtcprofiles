@@ -1,5 +1,6 @@
 var net = require('net');
 var util = require('util');
+var fs = require('fs');
 function Response(code){
 	this.code = code;
 	this.status = code === 200 ? 'ok' : 'not ok';
@@ -76,14 +77,12 @@ function Subscription(name, publisher, subscriber){
 	this.subscriber = subscriber;
 	this.type = 'subscription';
 }
-var fs = require('fs');
-var subscribersFilePattern = __dirname + '/subscribers/subscribers_for_{port}.json';
 function AsA_Publisher(port, host){
 	this.host = host || 'localhost';
 	this.server = new AsA_Server(port, this);
 	var self = this;
 	this.server.willShutDown = function(){
-		fs.writeFileSync(subscribersFilePattern.replace(/\{port\}/, self.port), JSON.stringify(self.subscribers), 'utf-8');
+		fs.writeFileSync(self.subscribersFilePattern.replace(/\{port\}/, self.port), JSON.stringify(self.subscribers), 'utf-8');
 	};
 
 	this.events = [];
@@ -98,6 +97,13 @@ function AsA_Publisher(port, host){
 			sendMessageOnce(event);
 		}
 	}, 100);
+	this.folder = __dirname + '/subscribers';
+	this.subscribersFilePattern = this.folder + '/subscribers_for_{port}.json';
+	
+	if(!fs.existsSync(this.folder)){
+		fs.mkdirSync(this.folder);
+	}
+	
 	Object.defineProperty(this, 'handlers', {
 		get: function(){ return self.server.handlers;}
 		, enumerable: true
@@ -122,7 +128,7 @@ AsA_Publisher.prototype = {
 		this.server.iRespondTo(name, responder);
 	}
 	, start: function(){
-		var fileName = subscribersFilePattern.replace(/\{port\}/, this.port);
+		var fileName = this.subscribersFilePattern.replace(/\{port\}/, this.port);
 		if(fs.existsSync(fileName)) this.subscribers = JSON.parse(fs.readFileSync(fileName));
 		this.server.start();
 	}

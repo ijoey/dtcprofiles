@@ -14,7 +14,6 @@ var passport = require('passport');
 var PassportStrategy = require('passport-local').Strategy;
 var Datastore = require('nedb');
 var membersDbFilePath = config.dataPath + '/members.db';
-var memberPath = './web/data/members/';
 var signer = require('jws');
 var Persistence = require('../boundaries/persistence')(config);
 var Member = require('../profile/entities/member');
@@ -22,6 +21,9 @@ var Ejs = require('ejs');
 var Https = require('https');
 var QueryString = require('querystring');
 var XmlToJson = require('xml2js');
+var uploadsFolder = rootPath + '/uploads/';
+var members = [];
+var membersFolder = rootPath + '/web/data/members';
 function Resource(obj){
 	this.layout = 'default';
 	this.title = config.site.title;
@@ -37,6 +39,14 @@ var represent = require('represent').Represent({
 	themeRoot: rootPath + '/web/themes/' + config.theme
 	, appPath: rootPath + '/web'
 });
+function createFolderIfDoesntExist(folder){
+	if(!fs.existsSync(folder)){
+		fs.mkdirSync(folder);
+	}
+}
+createFolderIfDoesntExist(config.dataPath);
+createFolderIfDoesntExist(uploadsFolder);
+createFolderIfDoesntExist(membersFolder);
 express.response.represent = require('./withRepresent')(represent, config);
 
 app.use(compression());
@@ -46,7 +56,7 @@ app.set("views", rootPath + "/themes/default/templates");
 app.set("view engine", function(view, options, fn){ return fn(view, options);});
 app.use(cookieParser());
 app.use(multer({dest: './uploads/'}));
-app.use(bodyParser.urlencoded());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(methodOverride(function(req, res){
 	if(req.body._method) return req.body._method;
 	return req.method;
@@ -134,7 +144,6 @@ app.get("/sitemap.:format", function(req, resp, next){
 		, resource: new Resource()
 		, model: {}});
 });
-var members = [];
 app.get(['/index.:format?', '/'], function(req, resp, next){
 	fs.readFile(__dirname + '/data/index.json', null, function(err, data){
 		if(err) console.log(err);
@@ -430,14 +439,14 @@ function synchMostRecentMember(){
 	});
 }
 function memberSyncher(){
-	var files = fs.readdirSync(memberPath);
+	var files = fs.readdirSync(membersFolder);
 	files.forEach(function(file){
-		fs.unlinkSync(memberPath + file);
+		fs.unlinkSync(membersFolder + '/' + file);
 	});
 	Persistence.member.findActive(function(err, docs){
 		members = [];
 		docs.forEach(function(doc){
-			fs.writeFile(rootPath + '/web/data/members/' + doc.username + '.json', JSON.stringify(doc), function(err){
+			fs.writeFile(membersFolder + '/' + doc.username + '.json', JSON.stringify(doc), function(err){
 				if(err) console.log(err);
 			});
 			members.push(new Member(doc));
