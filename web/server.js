@@ -48,7 +48,6 @@ createFolderIfDoesntExist(config.dataPath);
 createFolderIfDoesntExist(uploadsFolder);
 createFolderIfDoesntExist(membersFolder);
 express.response.represent = require('./withRepresent')(represent, config);
-
 app.use(compression());
 app.use("/public", staticServer(represent.themeRoot));
 app.use("/uploads", staticServer(rootPath + '/uploads/'));
@@ -384,9 +383,10 @@ process.on('SIGINT', function(){
 	console.log('SIGINT.');
 	process.exit(1);
 });
-
+var version = '0.0.1';
 var Server = app.listen(config.port, function(){
-	console.log('Server started, on port ', Server.address().port);
+	console.log('Server started, on port ', Server.address());
+	console.log('version ' + version);
 });
 
 var Commands = require('../profile/commands');

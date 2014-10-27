@@ -8,6 +8,6 @@ module.exports = {
 	  key: 'thedtc'
 	  , secret: 'this is the dtc secret.'
   }
-  , port: 5000
+  , port: 80
   , secret: "this is the serialization secret.....#42388##$$8890"
 };
