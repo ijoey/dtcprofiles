@@ -41,6 +41,7 @@ var represent = require('represent').Represent({
 });
 function createFolderIfDoesntExist(folder){
 	if(!fs.existsSync(folder)){
+		console.log('creating ' + folder);
 		fs.mkdirSync(folder);
 	}
 }
