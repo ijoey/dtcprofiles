@@ -47,7 +47,7 @@ function createFolderIfDoesntExist(folder){
 	}
 }
 createFolderIfDoesntExist(config.dataPath);
-createFolderIfDoesntExists(webDataFolder);
+createFolderIfDoesntExist(webDataFolder);
 createFolderIfDoesntExist(uploadsFolder);
 createFolderIfDoesntExist(membersFolder);
 express.response.represent = require('./withRepresent')(represent, config);
