@@ -90,7 +90,8 @@
 				if(!/\/(index)?$/.test(info.url)){
 					nextMemberGetter.stop();
 				}else{
-					nextMemberGetter.restart();
+					window.location.href = '/';
+					//nextMemberGetter.restart();
 				}
 			}
 		};
