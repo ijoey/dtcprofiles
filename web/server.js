@@ -270,19 +270,11 @@ app.get("/member.:format?", function getMemberEditForm(req, resp, next){
 	});
 });
 app.put("/member/:_id.:format?", function updateMemberById(req, resp, next){
-	var memberKey = null;
-	var member = new Member();
-	var id = req.params._id;
-	Persistence.member.findOne({_id: id}, function(err, doc){
+	Persistence.member.findOne({_id: req.params._id}, function(err, doc){
 		if(!doc) return next(404);
-		member._id = id;
-		member.username = req.body.username;
-		member.name = req.body.name;
-		member.token = doc.token;
-		member.avatar = doc.avatar;
-		member.background = doc.background;
-		member.page = req.body.page;
-		client.send(new Commands.UpdateMember(member));
+		doc.page = req.body.page;
+		doc.name = req.body.name;
+		client.send(new Commands.UpdateMember(doc));
 		resp.redirect('/members');
 	});
 });
@@ -291,7 +283,6 @@ app.post("/member.:format?", function(req, resp, next){
 	var member = new Member();
 	member.name = req.params.name;
 	member.page = req.params.page;
-	member.author = req.user;
 	member.active = (new Date()).getTime();
 	client.send(new Commands.AddMember(member));
 	resp.redirect('/members');

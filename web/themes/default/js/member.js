@@ -36,12 +36,10 @@
 	n.View.Background = function(container, controller, model){
 		n.View.apply(this, [container, controller, model]);
 		this.controller.setView(this);
-		console.log(this.model);
 		this.model.subscribe('background', this.update.bind(this));
 	};
 	n.View.Background.prototype = {
 		update: function(key, old, v){
-			console.log(key, old, v);
 			this.container.src = v;
 		}
 	};
