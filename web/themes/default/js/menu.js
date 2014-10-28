@@ -93,6 +93,33 @@
 		}
 	};
 	n.Controller.Mixin(n.Controller.MenuButton.prototype);
+	
+	n.View.Document = function(container, controller, model){
+		n.View.apply(this, [container, controller, model]);
+		this.controller.setView(this);
+	};
+	n.View.Mixin(n.View.Document.prototype);
+	
+	n.Controller.Document = function(delegate, model){
+		n.Controller.apply(this, [delegate, model]);
+	};
+	n.Controller.Document.prototype = {
+		setView: function(v){
+			n.Controller.prototype.setView.call(this, v);
+			this.view.container.addEventListener('click', this, true);
+			this.view.container.addEventListener('touchend', this, true);
+		}
+		, handleEvent: function(e){
+			var link = e.target;
+			if(!link) return;
+			while(!link.href){
+				link = link.parentNode;
+			}
+			if(!link.href) return;
+			e.preventDefault();
+			this.delegate.wasSelected(link);
+		}
+	};
 
 	n.Controller.UrlListener = function(delegate, model){
 		n.Controller.apply(this, [delegate, model]);
@@ -124,6 +151,7 @@
 			, wasSelected: function(link){
 				window.history.pushState(null, link.title, link.href);
 				page.url = link.href;
+				n.NotificationCenter.publish('pageWasSelected', this, page);
 			}
 			, pageWasRequested: function(p, response){
 				document.getElementById('main').innerHTML = response;
@@ -131,6 +159,7 @@
 		};
 		new n.Controller.UrlListener(self, page);
 		self.views.push(new n.View.MenuButton(document.getElementById('menuButton'), new n.Controller.MenuButton(self, menu), menu));
+		self.views.push(new n.View.Document(document.getElementById('main'), new n.Controller.Document(self, page), page));
 		window.addEventListener('popstate', function(e){
 			console.log('popstate', e);
 		}, true);

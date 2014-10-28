@@ -1,9 +1,0 @@
-<div id="profile" class="row profile">
-	<h1 id="model.username"><%= model.name %></h1>
-	<img class="img-circle avatar" id="model.avatar" src="<%= model.avatar %>" />
-	<div id="model.page"><%- model.page %></div>
-</div>
-<script>
-	var member = <%- JSON.stringify(model)%>;
-	document.body.style['backgroundImage'] = 'url("<%= model.background %>")';
-</script>

@@ -175,14 +175,15 @@ app.get("/members/after/:username.:format?", function(req, resp, next){
 			console.log(err);
 			next(404);
 		}
-		var member = new Member(docs.length > 0 ? docs[0] : null);
-		resp.represent({view: 'member/show'
+		if(docs.length === 0) return next(404);
+		var member = new Member(docs[0]);
+		resp.represent({view: 'index/index'
 			, resource: new Resource({title: member.name, css: ['member']})
 			, model: member});
 	});
 });
 
-app.get('/members/:member_name', function(req, resp, next){
+app.get('/members/:member_name.:format?', function(req, resp, next){
 	var member = null;
 	var member_name = req.params.member_name;
 	fs.readFile(__dirname + '/data/members/' + member_name + '.json', null, function(err, data){
