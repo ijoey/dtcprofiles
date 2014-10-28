@@ -133,6 +133,7 @@
 			if(!/\.(.*)$/.test(url)){
 				url += ".phtml";
 			}
+			console.log('requesting ' + url);
 			xhr.open("GET", url, true);
 			xhr.onload = function(e){self.onload(e);};
 			xhr.send();
@@ -154,6 +155,7 @@
 				n.NotificationCenter.publish('pageWasSelected', this, page);
 			}
 			, pageWasRequested: function(p, response){
+				console.log(response);
 				document.getElementById('main').innerHTML = response;
 			}
 		};
