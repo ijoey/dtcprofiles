@@ -159,8 +159,12 @@
 				n.NotificationCenter.publish('pageWasSelected', this, page);
 			}
 			, pageWasRequested: function(p, response){
-				console.log(response);
-				document.getElementById('main').innerHTML = response;
+				var main = document.getElementById('main');
+				main.innerHTML = response;
+				var background = main.querySelector('#background');
+				if(background){
+					document.body.style['backgroundImage'] = 'url("' + background.value + '")';	
+				}
 			}
 		};
 		new n.Controller.UrlListener(self, page);
