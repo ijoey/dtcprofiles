@@ -185,4 +185,9 @@ body{
 	width: 100px;
 	height: 100px;
 }
-
+form .file{
+	height: 100px;
+}
+.page{
+	width: 80%;
+}

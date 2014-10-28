@@ -5,20 +5,26 @@
 			<input type="hidden" name="_id" id="_id" value="<%= model._id %>" />
 		<%}%>
 		<div class="form-group">
+			<label for="name">Display Name</label>
 			<input class="form-control" type="text" name="name" placeholder="Name" value="<%= model.name %>" />
 		</div>
 		<div class="form-group">
-			<input class="form-control" type="text" name="username" placeholder="User Name" value="<%= model.username %>" />
+			<label for="username">Username</label>
+			<input class="form-control" disabled type="text" name="username" placeholder="User Name" value="<%= model.username %>" />
 		</div>
-		<div class="form-group avatar">
-			<img class="img-circle" id="model.avatar" src="<%= model.avatar %>" />
+		<div class="form-group file">
+			<label for="newAvatar">Avatar</label>
+			<img class="img-circle" id="model.avatar" src="<%= model.avatar %>" width="75px" />
 			<% if(model._id){%>
 			<input type="file" id="newAvatar" name="newAvatar" />
 			<%}%>
 		</div>
-		<div class="form-group">
-			<img id="model.background" src="<%= model.background %>" width="100px" />
+		<div class="form-group file">
+			<label for="newBackground">Background</label>
+			<img id="model.background" src="<%= model.background %>" width="75px" />
+			<% if(model._id){%>
 			<input type="file" id="newBackground" name="newBackground" />
+			<%}%>
 		</div>
 		<div class="form-group">
 			<textarea class="form-control" rows="5" placeholder="Page" name="page"><%- model.page %></textarea>

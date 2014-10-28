@@ -111,11 +111,11 @@
 		}
 		, handleEvent: function(e){
 			var link = e.target;
-			if(!link) return;
-			while(!link.href){
+			if(link === null) return;
+			while(link && !link.href){
 				link = link.parentNode;
 			}
-			if(!link.href) return;
+			if(!link || !link.href) return;
 			e.preventDefault();
 			this.delegate.wasSelected(link);
 		}

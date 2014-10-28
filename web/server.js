@@ -215,7 +215,7 @@ app.post("/members", function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
 });
-app.get('/logout', function(req, resp, next){
+app.get('/logout.:format?', function(req, resp, next){
 	req.logout();
 	resp.redirect('/');
 });
