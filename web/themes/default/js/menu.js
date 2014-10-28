@@ -129,17 +129,21 @@
 		update: function(key, old, v){
 			var xhr = new XMLHttpRequest();
 			var self = this;
-			var url = v;
-			if(!/\.(.*)$/.test(url)){
-				url += ".phtml";
-			}
-			console.log('requesting ' + url);
+			var url = this.addExtension(v, 'phtml');
 			xhr.open("GET", url, true);
 			xhr.onload = function(e){self.onload(e);};
 			xhr.send();
 		}
 		, onload: function(e){
 			this.delegate.pageWasRequested(this.model, e.target.responseText);
+		}
+		, addExtension: function(url, ext){
+			var parts = url.split('/');
+			var last = parts[parts.length-1];
+			if(!/\.(.*)$/.test(last)){
+				url += '.{ext}'.replace(/{ext}/, ext);
+			}
+			return url;
 		}
 	};
 	n.Controller.Mixin(n.Controller.UrlListener.prototype);
