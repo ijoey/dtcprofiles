@@ -48,7 +48,7 @@
 			var self = this;
 			this.interval = setInterval(function(){
 				self.fetchNext(document.getElementById('username').value);					
-			}, 5000);
+			}, 15000);
 		}
 		, stop: function(){
 			clearInterval(this.interval);
@@ -133,7 +133,7 @@
 						pageFlipperView.hide();
 						nextPageGetter.show();
 					}
-				}, 5000);
+				}, 15000);
 			}
 			, stop: function(){
 				clearInterval(this.interval);
