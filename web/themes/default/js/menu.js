@@ -154,6 +154,8 @@
 		var self = {
 			views: []
 			, wasSelected: function(link){
+				if(link.href.indexOf('logout') > -1) return window.location = link.href;
+				if(link.href.indexOf('/page') > -1) return window.location = link.href;
 				window.history.pushState(null, link.title, link.href);
 				page.url = link.href;
 				n.NotificationCenter.publish('pageWasSelected', this, page);

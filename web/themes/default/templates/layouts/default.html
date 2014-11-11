@@ -24,14 +24,16 @@
 		<main id="main" class="container-fluid" role="main">
 			<%- output %>
 		</main>
+		<section id="pageContainer" class="container-fluid" style="display: none;"></section>
 		<aside class="nav">
 			<button id="menuButton" class="menu glyphicon glyphicon-align-justify"><span>Menu</span></button>
 			<nav>
 				<a class="logo home" href="/index" name="home"><span>Home</span></a>
 				<a class="glyphicon members" href="/members" title="List of members"><span>Members</span></a>
-				<% if(!request.user){%>
+				<% if(!request.isAuthenticated()){%>
 				<a class="glyphicon glyphicon-power off" href="/login" name="signin"><span>Sign in</span></a>
 				<%}else{%>
+				<a class="glyphicon glyphicon-folder-open" href="/pages" title="Pages"><span>Pages</span></a>
 				<a class="glyphicon glyphicon-power on" href="/logout" title="Logout of this site"><span>Logout</span></a>					
 				<%}%>
 			</nav>

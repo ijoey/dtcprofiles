@@ -118,6 +118,7 @@ if(!MM) var MM = {};
 
 	namespace.Observable.List = function List(){
 		this.innerList = [];
+		this.counter = 0;
 		if(arguments && arguments.length > 0 && arguments[0].length > 0){
 			var ubounds = arguments[0].length;
 			for(var i = 0; i < ubounds; i++){
@@ -136,6 +137,14 @@ if(!MM) var MM = {};
 		push: function push(item){
 			this.innerList.push(item);
 			this.observable.changed("push", null, item);
+		}
+		, next: function(){
+			if(this.counter >= this.innerList.length){
+				this.counter = 0;
+			}
+			var item = this.innerList[this.counter];
+			this.counter++;
+			return item;
 		}
 		, pop: function pop(){
 			var last = this.innerList.pop();

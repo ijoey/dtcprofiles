@@ -47,6 +47,13 @@ var Db = {
 				});
 			}
 		}
+		, findFirst: function(callback){
+			db.find({}).sort({username: 1}).limit(1).exec(function(err, docs){
+				if(err) return callback(err, null);
+				if(docs.length === 0) return callback(null, null);
+				callback(null, new Member(docs[0]));
+			});
+		}
 		, findMostRecentlyActive: function(query, callback){
 			db.find(query).sort({active: -1}).limit(1).exec(function(err, docs){
 				if(err) return callback(err, null);

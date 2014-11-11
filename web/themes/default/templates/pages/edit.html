@@ -1,0 +1,31 @@
+<form role="form" method="post" action="<%= request.url %>">
+	<fieldset>
+		<div class="form-group">
+			<label for="fileName">File Name</label>
+			<input type="text" name="fileName" value="<%- model.page.file %>" />
+		</div>
+		<div class="form-group">
+			<textarea class="form-control" rows="5" placeholder="Page" name="contents" id="contents"><%- model.page.contents %></textarea>
+		</div>
+	</fieldset>
+	<% if(model.page.file !== null){%>
+	<input type="hidden" name="_method" value="put" />		
+	<%}%>
+	<button class="btn btn-default" type="submit">Save</button>
+</form>
+<form enctype="multipart/form-data">
+	<label>Images</label>
+	<input type="file" id="images" name="images" multiple />
+</form>
+<ul id="listOfImages">
+	<% model.images.forEach(function(image){%>
+		<li>
+			<img src="<%= image %>" width="100" />
+			<form action="/page/images" method="post">
+				<input type="hidden" value="<%= image %>" name="image" />
+				<input type="hidden" value="delete" name="_method" />
+				<button type="submit">Delete</button>
+			</form>
+		</li>
+	<%})%>
+</ul>

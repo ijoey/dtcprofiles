@@ -22,9 +22,11 @@ var Https = require('https');
 var QueryString = require('querystring');
 var XmlToJson = require('xml2js');
 var uploadsFolder = rootPath + '/uploads/';
+var imagesFolder = rootPath + '/uploads/images/';
 var members = [];
 var webDataFolder = rootPath + '/web/data';
 var membersFolder = webDataFolder + '/members';
+var pagesFolder = webDataFolder + '/pages';
 function Resource(obj){
 	this.layout = 'default';
 	this.title = config.site.title;
@@ -49,6 +51,7 @@ function createFolderIfDoesntExist(folder){
 createFolderIfDoesntExist(config.dataPath);
 createFolderIfDoesntExist(webDataFolder);
 createFolderIfDoesntExist(uploadsFolder);
+createFolderIfDoesntExist(imagesFolder);
 createFolderIfDoesntExist(membersFolder);
 express.response.represent = require('./withRepresent')(represent, config);
 app.use(compression());
@@ -83,61 +86,91 @@ passport.deserializeUser(function deserializeUser(token, done) {
 		done(err, member);
 	});
 });
-passport.use(new PassportStrategy(
-	function(username, password, done) {
-		var body = QueryString.stringify({callingProgram: 'dtcprofiles', j_username: username, j_password: password, j_storenumber: 9100});
-		var request = Https.request({hostname: 'hdapps.homedepot.com'
-			, port: '443'
-			, path: '/MYTHDPassport/rs/identity/auth'
-			, method: 'POST'
-			, headers: {
-	          'Content-Type': 'application/x-www-form-urlencoded'
-			  , 'Content-Length': body.length
-	    	}
-		}, function(response){
-			response.setEncoding('utf8');
-			response.on('data', function (chunk) {				
-				XmlToJson.parseString(chunk, function(err, identity){
-					if(err) return done(err);
-					if(identity.Auth.Error){
-						//console.log(identity.Auth.Error[0]);
-						return done(null, null, {message: identity.Auth.Error[0]});
-					}
-					Persistence.member.findOne({username: username}, function(err, member){
-						if(err) return done(err);
-						if(member) return done(null, member);
-						var member = new Member({
-							username: username
-							, background: ''
-							, name: username
-							, avatar: ''
-							, page: ''
-							, active: (new Date()).getTime()
-						});
-						client.send(new Commands.AddMember(member));
-						done(null, member);
+var Authentication = (function(){
+	var self = {
+		login: function(username, password, callback){
+			var body = QueryString.stringify({callingProgram: 'dtcprofiles', j_username: username, j_password: password, j_storenumber: 9100});
+			var request = Https.request({hostname: 'hdapps.homedepot.com'
+				, port: '443'
+				, path: '/MYTHDPassport/rs/identity/auth'
+				, method: 'POST'
+				, headers: {
+		          'Content-Type': 'application/x-www-form-urlencoded'
+				  , 'Content-Length': body.length
+		    	}
+			}, function(response){
+				response.setEncoding('utf8');
+				response.on('data', function (chunk) {				
+					XmlToJson.parseString(chunk, function(err, identity){
+						if(err) return callback(err);
+						if(identity.Auth.Error){
+							//console.log(identity.Auth.Error[0]);
+							return callback(null, null, {message: identity.Auth.Error[0]});
+						}
+						return callback(null, new Member({username: username}));
 					});
 				});
 			});
+			request.write(body);
+			request.end();
+		}
+	};
+	return self;
+})();
+passport.use(new PassportStrategy(
+	function(username, password, done) {
+		Authentication.login(username, password, function(err, member, response){
+			if(err) return done(err);
+			if(member !== null){
+				Persistence.member.findOne({username: username}, function(err, member){
+					if(err) return done(err);
+					if(member) return done(null, member);
+					var member = new Member({
+						username: username
+						, background: ''
+						, name: username
+						, avatar: ''
+						, page: ''
+						, active: (new Date()).getTime()
+					});
+					client.send(new Commands.AddMember(member));
+					done(null, member);
+				});
+			}else{
+				done(null, null, response);
+			}
 		});
-		request.write(body);
-		request.end();
 	}
 ));
+function Folder(files){
+	this.files = files;
+}
+Folder.prototype = {
+	canEdit: function(user){
+		return user !== null;
+	}
+};
+Folder.isValid = function(fileName){
+	if(fileName === null) return false;
+	if(fileName.length > 30) return false;
+	return /^\w+(\.\w+)?$/.test(fileName);
+};
+
+function Page(file, contents){
+	this.file = file;
+	this.contents = contents;
+}
+
 app.get("/robots.txt", function(req, resp, next){
 	resp.represent({
 		view: 'robots/index'
-		, resource: new Resource({
-			posts: posts}
-		)
+		, resource: new Resource({})
 		, model: {}});
 });
 app.get("/humans.txt", function(req, resp, next){
 	resp.represent({
 		view: 'humans/index'
-		, resource: new Resource({
-			posts: posts}
-		)
+		, resource: new Resource({})
 		, model: {}});
 });
 app.get("/sitemap.:format", function(req, resp, next){
@@ -146,9 +179,10 @@ app.get("/sitemap.:format", function(req, resp, next){
 		, resource: new Resource()
 		, model: {}});
 });
+
 app.get(['/index.:format?', '/'], function(req, resp, next){
 	fs.readFile(__dirname + '/data/index.json', null, function(err, data){
-		if(err) console.log(err);
+		if(err) console.log('index', err);
 		var member = new Member(JSON.parse(data ? data.toString() : '{}'));
 		member.page = Ejs.render(member.page ? member.page : '', {model: member, request: req});
 		resp.represent({view: 'index/index'
@@ -167,15 +201,25 @@ app.get('/login.:format?', function(req, resp, next){
 });
 app.post('/login.:format?', passport.authenticate('local', {successRedirect: '/', failureRedirect: '/login'}));
 
+function findFirstMember(resp){
+	Persistence.member.findFirst(function(err, member){
+		resp.represent({view: 'index/index'
+			, resource: new Resource({title: member.name, css: ['member']})
+			, model: member});
+	});
+}
+app.get('/members/first.:format?', function(req, resp, next){
+	return findFirstMember(resp);
+});
 app.get("/members/after/:username.:format?", function(req, resp, next){
 	var username = req.params.username;
-	if(username === 'null') username = 'a';
 	Persistence.member.find({username: {$gt: username}}, {username: 1}, function(err, docs){
 		if(err){
-			console.log(err);
 			next(404);
 		}
-		if(docs.length === 0) return next(404);
+		if(docs.length === 0){
+			return findFirstMember(resp);
+		}
 		var member = new Member(docs[0]);
 		resp.represent({view: 'index/index'
 			, resource: new Resource({title: member.name, css: ['member']})
@@ -188,7 +232,7 @@ app.get('/members/:member_name.:format?', function(req, resp, next){
 	var member_name = req.params.member_name;
 	fs.readFile(__dirname + '/data/members/' + member_name + '.json', null, function(err, data){
 		if(err){
-			console.log(err);
+			console.log(req.url, err);
 			return next(404);
 		}
 		member = new Member(JSON.parse(data));
@@ -197,8 +241,41 @@ app.get('/members/:member_name.:format?', function(req, resp, next){
 		, model: member});
 	});
 });
+app.get('/pages.:format?', function(req, resp, next){
+	var files = fs.readdir(pagesFolder, function(err, files){
+		if(err){
+			console.log(err);
+			return next(err);
+		}
+		
+		var extensionStripped = files.map(function(f){
+			return f.replace(/\.\w+$/, '');
+		});
+		resp.represent({
+			view: 'pages/index'
+			, resource: new Resource({})
+			, model: new Folder(extensionStripped)});
+	});
+});
 
 // authenticated endpoints
+app.get('/page', function(req, resp, next){
+	if(!req.isAuthenticated()) return next(401);
+	next();
+});
+app.put('/page', function(req, resp, next){
+	if(!req.isAuthenticated()) return next(401);
+	next();
+});
+app.post('/page', function(req, resp, next){
+	if(!req.isAuthenticated()) return next(401);
+	next();
+});
+app.delete('/page', function(req, resp, next){
+	if(!req.isAuthenticated()) return next(401);
+	next();
+});
+
 app.get("/member", function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
@@ -217,7 +294,103 @@ app.post("/members", function(req, resp, next){
 });
 app.get('/logout.:format?', function(req, resp, next){
 	req.logout();
-	resp.redirect('/');
+	resp.redirect('/index');
+});
+
+var httpImageRoot = "/uploads/images/";
+app.get('/page/', function(req, resp, next){
+	fs.readdir(imagesFolder, function(err, images){
+		images = images.map(function(image){
+			return httpImageRoot + image;
+		});
+		resp.represent({
+			view: 'pages/edit'
+			, resource: new Resource({title: "New Page", js: ['page']})
+			, model: {page: new Page(null, null), images: images}});
+	});
+});
+app.get('/page/:file.:format?', function(req, resp, next){
+	var file = req.params.file + '.html';
+	if(!Folder.isValid(file)){
+		return next(new HttpStatus(404));
+	}
+	fs.readFile(pagesFolder + '/' + file, function(err, data){
+		if(err){
+			return next(new HttpStatus(500));
+		}
+		fs.readdir(imagesFolder, function(err, images){
+			images = images.map(function(image){
+				return httpImageRoot + image;
+			});
+			resp.represent({
+				view: 'pages/edit'
+				, resource: new Resource({title: "Upload Images", js: ['page']})
+				, model: {page: new Page(file, data.toString()), images: images}});
+		});
+	});
+});
+app.get('/pages/:file.:format?', function(req, resp, next){
+	var file = req.params.file + '.html';
+	if(!Folder.isValid(file)){
+		return next(new HttpStatus(404));
+	}
+	fs.readFile(pagesFolder + '/' + file, function(err, data){
+		if(err){
+			return next(new HttpStatus(500));
+		}
+		resp.represent({
+			view: 'pages/show'
+			, resource: new Resource({title: "Page", js: ['page']})
+			, model: {page: new Page(file, data.toString())}});
+	});
+});
+app.post('/page/images.:format?', function(req, resp, next){
+	var images = [];
+	for(var key in req.files){
+		images.push(req.files[key]);
+	}
+	images.forEach(function(image){
+		fs.renameSync(rootPath + '/' + image.path, imagesFolder + image.originalname
+			, function(err){
+				if(err) console.log(err);
+		});
+	});
+	var files = images.map(function(image){
+		return imagesFolder.replace(uploadsFolder, '/uploads/') + image.originalname;
+	});
+	resp.represent({view: 'images/show', resource: new Resource({title: "Upload Images", js: ['page']}), model: {files: files}});
+});
+app.delete('/page/images.:format?', function(req, resp, next){
+	var file = req.body.image.replace(httpImageRoot, '');
+	fs.unlink(imagesFolder + file, function(err){
+		resp.represent({view: 'images/show', resource: new Resource({title: "Delete Images", js: ['page']}), model: {files: [file]}});
+	});
+});
+
+app.put('/page/:file', function(req, resp, next){
+	var file = req.params.file + '.html';
+	var path = pagesFolder + '/' + file;
+	var contents = req.body.contents;
+	fs.exists(path, function(exists){
+		if(!exists) return next(new HttpStatus(404));
+		fs.writeFile(path, contents, function(err){
+			if(err) console.log(err);
+			resp.redirect('/pages');
+		});
+	});
+});
+app.post('/page/', function(req, resp, next){
+	var fileName = req.body.fileName;
+	if(!fileName) return next(404);
+	var path = pagesFolder + '/' + fileName + '.html';
+	var contents = req.body.contents;
+	fs.exists(path, function(exists){
+		if(exists) return next(new HttpStatus(405));
+		fs.writeFile(path, contents, function(err){
+			if(err) console.log(err);
+			resp.redirect('/pages');
+		});
+	});
 });
 app.delete("/members.:format?", function(req, resp, next){
 	var id = req.body._id;
@@ -323,6 +496,12 @@ app.post('/member/:_id/avatars.:format?', function(req, resp, next){
 		});
 	})
 });
+app.use(function(err, req, resp, next){
+	if(err instanceof HttpStatus){
+		return resp.status(err.code).send(err.message);
+	}
+	next(err);		
+});
 
 function HttpStatus(code){
 	this.code = code;
@@ -336,6 +515,9 @@ function HttpStatus(code){
 			case(404):
 				message = "Not Found";
 				break;
+			case(500):
+				message = "Internal Server Error";
+				break;
 		}
 		return message;
 	}
@@ -346,23 +528,6 @@ function HttpStatus(code){
 		, enumerable: true
 	});
 }
-app.use(function(err, req, res, next){
-	if(err !== 404 && err.code !== 404){
-		return next(err.code);
-	}
-	var path = req._parsedUrl.pathname.replace(/^\//, '').replace(/\/$/, '');
-	path += '/index';
-	var file = represent.templatesRoot + path + represent.extensionViaContentNegotation(req);
-	fs.exists(file, function(exists){
-		if(!exists) return next(new HttpStatus(404));
-		res.represent({view: path, resource: new Resource(), model: {}});
-	});
-});
-app.use(function(err, req, res, next){
-	res.status(typeof err === 'number' ? err : err.code);
-	var status = new HttpStatus(typeof err != 'number' ? 404 : err);
-	res.send(req.url + ' ' + status.message);
-});
 process.argv.forEach(function(value, fileName, args){
 	if(/as:/.test(value)) config.runAsUser = /as\:([a-zA-Z-]+)/.exec(value)[1];
 	if(/port:/.test(value)) config.port = /port:(\d+)/.exec(value)[1];

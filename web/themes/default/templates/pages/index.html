@@ -1,0 +1,13 @@
+<ul>
+<% model.files.forEach(function(file){%>
+	<li>
+		<%= file %>
+		<% if(request.isAuthenticated()){%>
+			<a href="/page/<%= file %>" title="<%= file %>">Edit</a>
+		<%}%>
+	</li>
+<%})%>
+</ul>
+<% if(request.isAuthenticated()){%>
+<a href="/page/" title="New Page">Add</a>
+<%}%>
