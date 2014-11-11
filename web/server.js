@@ -53,6 +53,7 @@ createFolderIfDoesntExist(webDataFolder);
 createFolderIfDoesntExist(uploadsFolder);
 createFolderIfDoesntExist(imagesFolder);
 createFolderIfDoesntExist(membersFolder);
+createFolderIfDoesntExist(pagesFolder);
 express.response.represent = require('./withRepresent')(represent, config);
 app.use(compression());
 app.use("/public", staticServer(represent.themeRoot));
