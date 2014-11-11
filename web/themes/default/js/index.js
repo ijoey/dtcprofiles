@@ -1,13 +1,22 @@
-(function(n, win){	
+(function(n, win){
 	n.View.PageFlipper = function(container, controller, model){
 		n.View.apply(this, [container, controller, model]);
 		this.controller.setView(this);
 		this.model.subscribe('push', this.update.bind(this));
+		this.backgroundImages = [];
 	};
 	n.View.PageFlipper.prototype = {
 		update: function(key, old, v){
 			this.container.innerHTML = v;
-			document.body.style['backgroundImage'] = 'url("' + this.container.querySelector('#background').value + '")';
+			var image = new Image();
+			image.src = this.container.querySelector('#background').value;
+			var existing = this.backgroundImages.filter(function(img){
+				return img.src.indexOf(image.src) > -1;
+			}.bind(this));
+			if(existing.length === 0){
+				this.backgroundImages.push(image);
+			}
+			document.body.style['backgroundImage'] = 'url("' + image.src + '")';
 		}
 		, hide: function(){
 			this.container.style["display"] = 'none';
@@ -30,13 +39,18 @@
 		this.container = document.createElement('div');
 	};
 	n.Controller.NextMemberGetter.prototype = {
-		fetchNext: function(username){
+		fetchNext: function(username, callback){
 			var xhr = new XMLHttpRequest();
 			var self = this;
 			var url = '/members/after/' + username + '.phtml'
 			if(username === null) url = '/members/first.phtml';
 			xhr.open("GET", url, true);
-			xhr.onload = function(e){self.onload(e);};
+			xhr.onload = function(e){
+				self.onload(e);
+				if(callback) {
+					callback(e.target);
+				}
+			};
 			xhr.send();
 		}
 		, onload: function(e){
@@ -48,7 +62,7 @@
 			var self = this;
 			this.interval = setInterval(function(){
 				self.fetchNext(document.getElementById('username').value);					
-			}, 15000);
+			}, 5000);
 		}
 		, stop: function(){
 			clearInterval(this.interval);
@@ -65,11 +79,15 @@
 		var self = {
 			model: new n.Observable.List([])
 			, container: document.getElementById('pageContainer')
-			, fetchNext: function(){
+			, fetchNext: function(callback){
 				var file = this.model.next();
 				var url = '/pages/' + file + '.json';
+				var self = this;
 				xhr.open("GET", url, true);
-				xhr.onload = this.onload.bind(this);
+				xhr.onload = function(e){
+					self.onload(e);
+					if(callback) callback(e.target);
+				}
 				xhr.send();
 			}
 			, onload: function(e){
@@ -125,15 +143,17 @@
 					if(counter > 10) counter = 0;
 					counter++;
 					if(counter % 2 === 0){
-						pageFlipperView.show();
-						nextPageGetter.hide();
-						nextMemberGetter.fetchNext(document.getElementById('username').value);
+						nextMemberGetter.fetchNext(document.getElementById('username').value, function(){
+							pageFlipperView.show();
+							nextPageGetter.hide();
+						});
 					}else{
-						nextPageGetter.fetchNext();
-						pageFlipperView.hide();
-						nextPageGetter.show();
+						nextPageGetter.fetchNext(function(){
+							pageFlipperView.hide();
+							nextPageGetter.show();
+						});
 					}
-				}, 15000);
+				}, 5000);
 			}
 			, stop: function(){
 				clearInterval(this.interval);
