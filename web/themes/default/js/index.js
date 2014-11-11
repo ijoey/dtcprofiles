@@ -73,6 +73,7 @@
 				xhr.send();
 			}
 			, onload: function(e){
+				if(e.target.status !== 200) return;
 				var response = JSON.parse(e.target.responseText);
 				var div = document.createElement('div');
 				this.container.innerHTML = response.page.contents;
