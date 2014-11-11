@@ -140,6 +140,7 @@
 		, addExtension: function(url, ext){
 			var parts = url.split('/');
 			var last = parts[parts.length-1];
+			if(last.length === 0) url = 'index';
 			if(!/\.(.*)$/.test(last)){
 				url += '.{ext}'.replace(/{ext}/, ext);
 			}
