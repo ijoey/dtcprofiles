@@ -1,93 +1,86 @@
 (function(n, win){
-	n.View.PageFlipper = function(container, controller, model){
-		n.View.apply(this, [container, controller, model]);
-		this.controller.setView(this);
-		this.model.subscribe('push', this.update.bind(this));
-		this.backgroundImages = [];
-	};
-	n.View.PageFlipper.prototype = {
-		update: function(key, old, v){
-			this.container.innerHTML = v;
-			var image = new Image();
-			image.src = this.container.querySelector('#background').value;
-			var existing = this.backgroundImages.filter(function(img){
-				return img.src.indexOf(image.src) > -1;
-			}.bind(this));
-			if(existing.length === 0){
-				this.backgroundImages.push(image);
+	n.CreatePageFlipper = function(container, model){
+		var self = {
+			container: container
+			, model: model
+			, hidden: document.createElement('div')
+			, update: function(key, old, v){
+				this.hidden.innerHTML = v;
+				var image = new Image();
+				this.container.innerHTML = '';
+				image.onload = function(e){
+					document.body.style['backgroundImage'] = 'url("' + image.src + '")';
+					this.container.innerHTML = this.hidden.innerHTML;					
+				}.bind(this);
+				image.src = this.hidden.querySelector('#background').value;
 			}
-			document.body.style['backgroundImage'] = 'url("' + image.src + '")';
-		}
-		, hide: function(){
-			this.container.style["display"] = 'none';
-		}
-		, show: function(){
-			this.container.style["display"] = 'block';
-		}
+			, hide: function(){
+				this.container.style["display"] = 'none';
+			}
+			, show: function(){
+				this.container.style["display"] = 'block';
+			}
+		};
+		self.model.subscribe('push', self.update.bind(self));
+		self.hidden.style['display'] = 'none';
+		document.body.appendChild(self.hidden);
+		return self;
 	};
-	n.View.Mixin(n.View.PageFlipper.prototype);
+	n.CreateNextMemberGetter = function(delegate, model){
+		var self = {
+			model: model
+			, delegate: delegate
+			, fetchNext: function(username, callback){
+				var xhr = new XMLHttpRequest();
+				var self = this;
+				var url = '/members/after/' + username + '.phtml'
+				if(username === null) url = '/members/first.phtml';
+				xhr.open("GET", url, true);
+				xhr.onload = function(e){
+					self.onload(e);
+					if(callback) {
+						callback(e.target);
+					}
+				};
+				xhr.send();
+			}
+			, onload: function(e){
+				this.model.clear();
+				this.model.push(e.target.responseText);
+			}
+			, start: function(){
+				var self = this;
+				this.interval = setInterval(function(){
+					self.fetchNext(document.getElementById('username').value);					
+				}, 11000);
+			}
+			, stop: function(){
+				clearInterval(this.interval);
+			}
+			, restart: function(){
+				this.stop();
+				this.start();
+			}
+		};
+		self.interval = null;
+		return self;
+	};
 	
-	n.Controller.PageFlipper = function(delegate, model){
-		n.Controller.apply(this, [delegate, model]);
-	};
-	n.Controller.Mixin(n.Controller.PageFlipper.prototype);
-	
-	n.Controller.NextMemberGetter = function(delegate, model){
-		n.Controller.apply(this, [delegate, model]);
-		var self = this;
-		this.interval = null;
-		this.container = document.createElement('div');
-	};
-	n.Controller.NextMemberGetter.prototype = {
-		fetchNext: function(username, callback){
-			var xhr = new XMLHttpRequest();
-			var self = this;
-			var url = '/members/after/' + username + '.phtml'
-			if(username === null) url = '/members/first.phtml';
-			xhr.open("GET", url, true);
-			xhr.onload = function(e){
-				self.onload(e);
-				if(callback) {
-					callback(e.target);
-				}
-			};
-			xhr.send();
-		}
-		, onload: function(e){
-			this.model.clear();
-			this.container.innerHTML = e.target.responseText;
-			this.model.push(e.target.responseText);
-		}
-		, start: function(){
-			var self = this;
-			this.interval = setInterval(function(){
-				self.fetchNext(document.getElementById('username').value);					
-			}, 11000);
-		}
-		, stop: function(){
-			clearInterval(this.interval);
-		}
-		, restart: function(){
-			this.stop();
-			this.start();
-		}
-	};
-	n.Controller.Mixin(n.Controller.NextMemberGetter.prototype);
-	var nextPageGetter = (function(){
+	n.CreateNextPageGetter = function(container, model, delegate){
 		var xhr = new XMLHttpRequest();
 		var counter = 0;
 		var self = {
-			model: new n.Observable.List([])
-			, container: document.getElementById('pageContainer')
+			model: model
+			, container: container
 			, fetchNext: function(callback){
 				var file = this.model.next();
 				var url = '/pages/' + file + '.json';
 				var self = this;
 				xhr.open("GET", url, true);
 				xhr.onload = function(e){
-					self.onload(e);
+					this.onload(e);
 					if(callback) callback(e.target);
-				}
+				}.bind(this);
 				xhr.send();
 			}
 			, onload: function(e){
@@ -113,7 +106,7 @@
 		};
 		xhr.send();
 		return self;
-	})();
+	};
 	
 	var app = (function(win, member){
 		var menu = new n.Observable({});
@@ -130,11 +123,10 @@
 			, pageWasSelected: function(publisher, info){
 				pageFlipperView.show();
 				nextPageGetter.hide();
-				if(!/\/(index)?$/.test(info.url)){
-					this.stop();
-				}else{
-					window.location.href = '/';
-					//nextMemberGetter.restart();
+				this.stop();
+				
+				if(/\/(index)?$/.test(info.url)){
+					this.start();
 				}
 			}
 			, start: function(){
@@ -159,8 +151,9 @@
 				clearInterval(this.interval);
 			}
 		};
-		var nextMemberGetter = new n.Controller.NextMemberGetter(self, members);
-		var pageFlipperView = new n.View.PageFlipper(document.getElementById('main'), new n.Controller.PageFlipper(self, members), members);
+		var nextPageGetter = n.CreateNextPageGetter(document.getElementById('next'), new n.Observable.List(), self);
+		var nextMemberGetter = n.CreateNextMemberGetter(self, members);
+		var pageFlipperView = n.CreatePageFlipper(document.getElementById('main'), members);
 		self.views.push(pageFlipperView);
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
 		self.start();
