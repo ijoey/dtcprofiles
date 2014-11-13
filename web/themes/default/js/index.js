@@ -15,6 +15,7 @@
 				image.src = this.hidden.querySelector('#background').value;
 			}
 			, hide: function(){
+				document.body.style['backgroundImage'] = null;
 				this.container.style["display"] = 'none';
 			}
 			, show: function(){
@@ -86,7 +87,6 @@
 			, onload: function(e){
 				if(e.target.status !== 200) return;
 				var response = JSON.parse(e.target.responseText);
-				var div = document.createElement('div');
 				this.container.innerHTML = response.page.contents;
 			}
 			, show: function(){
@@ -95,19 +95,56 @@
 			, hide: function(){
 				this.container.style['display'] = 'none';
 			}
+			, loadAllThePages: function(callback){
+				var url = '/pages.json';
+				xhr.open("GET", url, true);
+				xhr.onload = function(e){
+					var response = JSON.parse(e.target.responseText);
+					callback(response);
+				};
+				xhr.send();
+			}
 		};
-		var url = '/pages.json';
-		xhr.open("GET", url, true);
-		xhr.onload = function(e){
-			var response = JSON.parse(e.target.responseText);
+		self.loadAllThePages(function(response){
 			response.files.forEach(function(file){
-				self.model.push(file);
-			});
-		};
-		xhr.send();
+				this.model.push(file);
+			}.bind(this));
+		}.bind(self));
+		
 		return self;
 	};
-	
+	n.CreateDocumentSlider = function(container, model, delegate){
+		var isMouseDown = false;
+		var defaults = {
+			position: container.style['position']
+			, left: container.style['left']
+			, top: container.style['top']
+		};
+		var self = {
+			container: container
+			, model: model
+			, delegate: delegate
+			, mouseDown: function(e){
+				e.preventDefault();
+				isMouseDown = true;
+			}
+			, mouseUp: function(e){
+				e.preventDefault();
+				isMouseDown = false;
+			}
+			, mouseMove: function(e){
+				if(isMouseDown){
+					this.container.style['position'] = 'absolute';	
+					this.container.style['left'] = e.clientX + 'px';
+					this.container.style['top'] = 0;			
+				}
+			}
+		};
+		self.container.addEventListener('mousedown', self.mouseDown.bind(self), true);
+		self.container.addEventListener('mouseup', self.mouseUp.bind(self), true);
+		self.container.addEventListener('mousemove', self.mouseMove.bind(self), true);
+		return self;
+	};
 	var app = (function(win, member){
 		var menu = new n.Observable({});
 		var member = {name: document.getElementById('name').innerHTML
@@ -154,6 +191,7 @@
 		var nextPageGetter = n.CreateNextPageGetter(document.getElementById('next'), new n.Observable.List(), self);
 		var nextMemberGetter = n.CreateNextMemberGetter(self, members);
 		var pageFlipperView = n.CreatePageFlipper(document.getElementById('main'), members);
+		var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
 		self.views.push(pageFlipperView);
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
 		self.start();

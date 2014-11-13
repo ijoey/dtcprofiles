@@ -66,16 +66,6 @@
 			container: container
 			, model: model
 			, delegate: delegate
-			, handleEvent: function(e){
-				var link = e.target;
-				if(link === null) return;
-				while(link && !link.href){
-					link = link.parentNode;
-				}
-				if(!link || !link.href) return;
-				e.preventDefault();
-				this.delegate.wasSelected(link);
-			}
 			, slideRight: function(){
 				this.container.style['marginLeft'] = '100px';
 			}
@@ -91,7 +81,6 @@
 		};
 		n.NotificationCenter.subscribe('menuHasOpened', self, null);
 		n.NotificationCenter.subscribe('menuHasClosed', self, null);
-		self.container.addEventListener('click', self, true);
 		return self;
 	};
 
