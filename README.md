@@ -11,6 +11,12 @@ Turn off the screen saver:
 /usr/share/kano-desktop/kdesk/.kdeskrc
 ScreenSaverTimeout: 0
 
+Setup post-receive hook in repo:
+	#!/bin/sh
+	git --work-tree=/home/Joey/apps/dtcprofiles --git-dir=/home/Joey/repo/dtcprofiles checkout -f
+	node /home/Joey/apps/dtcprofiles/stop.js
+	sudo ./home/Joey/apps/dtcprofiles/start.sh
+
 Create service:
 
 	#!/bin/sh
