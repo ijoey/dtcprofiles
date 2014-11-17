@@ -1,2 +1,2 @@
-node /home/Joey/apps/production_dtcprofiles/web/memberProcessor.js > processor.log &
-node /home/Joey/apps/production_dtcprofiles/web/server.js > server.log &
+node /home/Joey/apps/dtcprofiles/web/memberProcessor.js > processor.log &
+node /home/Joey/apps/dtcprofiles/web/server.js > server.log &
