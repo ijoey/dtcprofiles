@@ -32,7 +32,6 @@ function ChangeBackground(member){
 	Command.apply(this, [member]);
 	this.header.name = 'ChangeBackground';
 }
-
 module.exports = {
 	AddMember: AddMember
 	, UpdateMember: UpdateMember

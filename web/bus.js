@@ -223,10 +223,15 @@ AsA_Server.prototype = {
 		this.server = net.createServer(function(c){
 			c.setEncoding('utf8');
 			c.on('data', function(data){
-				var message = JSON.parse(data);
-				(new IncomingMessageHandler(self.delegate, message)).execute(c, function(err, response){
-					c.write(JSON.stringify(response));
-				});
+				var message = null;
+				try{
+					message = JSON.parse(data);					
+					(new IncomingMessageHandler(self.delegate, message)).execute(c, function(err, response){
+						c.write(JSON.stringify(response));
+					});
+				}catch(exception){
+					console.log(exception, data);
+				}
 			});
 		}).listen(this.port, function(){
 			console.log('server has started on port ' + self.port);
