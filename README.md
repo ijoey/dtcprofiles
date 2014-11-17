@@ -11,6 +11,7 @@ Turn off the screen saver:
 /usr/share/kano-desktop/kdesk/.kdeskrc
 ScreenSaverTimeout: 0
 
+Create service:
 
 	#!/bin/sh
 	# /etc/init.d/dtcprofiles
@@ -42,3 +43,7 @@ ScreenSaverTimeout: 0
 	                ;;
 	esac
 	exit 0
+
+Start service at startup:
+sudo update-rc.d dtcprofiles defaults
+
