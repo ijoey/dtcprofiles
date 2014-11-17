@@ -171,18 +171,16 @@ AsA_Subscriber.prototype = {
 
 function AsA_Client(){
 	this.commands = [];
-	var self = this;
 	this.commandInterval = setInterval(function(){
 		var command = null;
-		if(self.commands.length === 0) return;
-		command = self.commands.shift();
-		sendMessageOnce(command, function(err, response){
-			return self.commands.shift();
-		});
-	}, 100);
+		if(this.commands.length === 0) return;
+		command = this.commands.shift();
+		sendMessageOnce(command);
+	}.bind(this), 100);
 }
 AsA_Client.prototype = {
 	send: function(command){
+		console.log('queing ', command.header.endpoint);
 		this.commands.push(command);
 	}
 	, request: function(message, callback){
@@ -256,9 +254,13 @@ function reconnect(message, callback){
 }
 function sendMessageOnce(message, callback){
 	if(!message) return;
-	console.log('sending', message.header);
+	console.log('sendMessageOnce', message.header);
 	var socket = net.connect(message.header.endpoint.port, message.header.endpoint.host, function(){
 		socket.end(JSON.stringify(message), 'utf-8');
+	});
+	var result = '';
+	socket.on('data', function(data){
+		result += data.toString();
 	});
 	socket.on('error', function(err){
 		if(callback) callback(err, null);
@@ -267,10 +269,6 @@ function sendMessageOnce(message, callback){
 	socket.on('close', function(hadError){
 		if(hadError) console.log('had error and closed');
 		if(callback) callback(null, result ? JSON.parse(result) : null);
-	});
-	var result = '';
-	socket.on('data', function(data){
-		result += data.toString();
 	});
 }
 function sendMessageRecursively(message, callback){

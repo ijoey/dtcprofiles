@@ -5,6 +5,12 @@ var config = require('../config');
 var Persistence = require('../boundaries/persistence')(config);
 var bus = new Bus.AsA_Publisher(8126);
 bus.start();
+bus.iHandle('Stop', {
+	handle: function(command){
+		console.log('memberProcessor received stop command', command);
+		process.exit(1);
+	}
+});
 bus.iHandle('AddMember', {
 	handle: function(command){
 		Persistence.newMemberWasSubmitted(command.body, function(err, doc){

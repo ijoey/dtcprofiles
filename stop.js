@@ -12,7 +12,12 @@ function Stop(message){
 	};
 	this.type = 'command';
 }
-client.send(new Stop(null));
+var stopWeb = new Stop({message: "Stop the web server"});
+var stopProcessor = new Stop({message: "Stop the processor"});
+stopWeb.header.endpoint.port = 8128;
+stopProcessor.header.endpoint.port = 8126;
+client.send(stopWeb);
+client.send(stopProcessor);
 setTimeout(function(){
 	process.exit(1);
-}, 500);
+}, 1000);
