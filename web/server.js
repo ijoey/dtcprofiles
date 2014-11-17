@@ -1,3 +1,4 @@
+var repl = require('../repl');
 var express = require('express');
 var app = express();
 var fs = require('fs');
@@ -557,6 +558,7 @@ var bus = new Bus.AsA_Subscriber(8127);
 var client = new Bus.AsA_Client();
 bus.start();
 console.log('starting subscriber');
+
 bus.iSubscribeTo('MemberWasUpdated', {host: 'localhost', port: 8126}, {
 	update: function(event){
 		Persistence.refresh();
