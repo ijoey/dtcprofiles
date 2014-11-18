@@ -14,8 +14,7 @@ ScreenSaverTimeout: 0
 Setup post-receive hook in repo:
 	#!/bin/sh
 	git --work-tree=/home/Joey/apps/dtcprofiles --git-dir=/home/Joey/repo/dtcprofiles checkout -f
-	/etc/init.d/dtcprofiles stop
-	/etc/init.d/dtcprofiles start
+	/home/Joey/apps/dtcprofiles/restart.sh
 
 
 Boot Kano into Chrome Kiosk mode:
