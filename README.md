@@ -17,6 +17,12 @@ Setup post-receive hook in repo:
 	node /home/Joey/apps/dtcprofiles/stop.js
 	sudo ./home/Joey/apps/dtcprofiles/start.sh
 
+Boot Kano into Chrome Kiosk mode:
+edit /etc/xdg/lxsession/LXDE/autostart
+add @/home/Joey/apps/dtcprofiles/afterboot.sh
+
+
+
 Create service:
 
 	#!/bin/sh
