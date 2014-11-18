@@ -21,7 +21,7 @@ Boot Kano into Chrome Kiosk mode:
 edit /etc/xdg/lxsession/LXDE/autostart
 add @/home/Joey/apps/dtcprofiles/afterboot.sh
 
-Create service:
+Create service as /etc/init.d/dtcprofiles:
 
 	#!/bin/sh
 	# /etc/init.d/dtcprofiles
