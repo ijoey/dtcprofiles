@@ -191,7 +191,9 @@
 		var nextPageGetter = n.CreateNextPageGetter(document.getElementById('next'), new n.Observable.List(), self);
 		var nextMemberGetter = n.CreateNextMemberGetter(self, members);
 		var pageFlipperView = n.CreatePageFlipper(document.getElementById('main'), members);
-		var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
+		//TODO: I want to handle swipes trying to slide the page, but I need to 
+		// build teh chat app first.
+		//var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
 		self.views.push(pageFlipperView);
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
 		self.start();
