@@ -145,6 +145,25 @@
 		self.container.addEventListener('mousemove', self.mouseMove.bind(self), true);
 		return self;
 	};
+	n.CreateClickDisabler = function(container, model, delegate){
+		var isMouseDown = false;
+		var defaults = {
+			position: container.style['position']
+			, left: container.style['left']
+			, top: container.style['top']
+		};
+		var self = {
+			container: container
+			, model: model
+			, delegate: delegate
+			, mouseDown: function(e){
+				e.preventDefault();
+				isMouseDown = true;
+			}
+		};
+		self.container.addEventListener('mousedown', self.mouseDown.bind(self), true);
+		return self;
+	};
 	var app = (function(win, member){
 		var menu = new n.Observable({});
 		var member = {name: document.getElementById('name').innerHTML
@@ -191,6 +210,7 @@
 		var nextPageGetter = n.CreateNextPageGetter(document.getElementById('next'), new n.Observable.List(), self);
 		var nextMemberGetter = n.CreateNextMemberGetter(self, members);
 		var pageFlipperView = n.CreatePageFlipper(document.getElementById('main'), members);
+		var clickDisabler = n.CreateClickDisabler(document.getElementById('profile'), member, self);
 		//TODO: I want to handle swipes trying to slide the page, but I need to 
 		// build teh chat app first.
 		//var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
