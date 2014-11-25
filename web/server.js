@@ -27,6 +27,9 @@ var members = [];
 var webDataFolder = rootPath + '/web/data';
 var membersFolder = webDataFolder + '/members';
 var pagesFolder = webDataFolder + '/pages';
+var httpImageRoot = "/uploads/images/";
+
+
 function Resource(obj){
 	this.layout = 'default';
 	this.title = config.site.title;
@@ -36,6 +39,8 @@ function Resource(obj){
 	this.user = null;
 	this.status = {code: 200, description: 'Ok'};
 	this.posts = [];
+	this.author = "Joey Guerra";
+	this.description = "profiles app";
 	for(var key in obj) this[key] = obj[key];
 }
 var represent = require('represent').Represent({
@@ -118,6 +123,7 @@ var Authentication = (function(){
 	};
 	return self;
 })();
+
 passport.use(new PassportStrategy(
 	function(username, password, done) {
 		Authentication.login(username, password, function(err, member, response){
@@ -233,7 +239,7 @@ app.get('/members/:member_name.:format?', function(req, resp, next){
 	var member_name = req.params.member_name;
 	fs.readFile(__dirname + '/data/members/' + member_name + '.json', null, function(err, data){
 		if(err){
-			console.log(req.url, err);
+			//console.log(req.url, err);
 			return next(404);
 		}
 		member = new Member(JSON.parse(data));
@@ -260,7 +266,7 @@ app.get('/pages.:format?', function(req, resp, next){
 });
 
 // authenticated endpoints
-app.get('/page', function(req, resp, next){
+app.get(['/page', '/chat', '/member', 'member/:member_name'], function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
 });
@@ -268,37 +274,21 @@ app.put('/page', function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
 });
-app.post('/page', function(req, resp, next){
+app.post(['/page', '/members'], function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
 });
-app.delete('/page', function(req, resp, next){
+app.delete(['/page', '/members'], function(req, resp, next){
 	if(!req.isAuthenticated()) return next(401);
 	next();
 });
 
-app.get("/member", function(req, resp, next){
-	if(!req.isAuthenticated()) return next(401);
-	next();
-});
-app.get("/member/:member_name.:format?", function(req, resp, next){
-	if(!req.isAuthenticated()) return next(401);
-	next();
-});
-app.delete('/members', function(req, resp, next){
-	if(!req.isAuthenticated()) return next(401);
-	next();
-});
-app.post("/members", function(req, resp, next){
-	if(!req.isAuthenticated()) return next(401);
-	next();
-});
+
 app.get('/logout.:format?', function(req, resp, next){
 	req.logout();
 	resp.redirect('/index');
 });
 
-var httpImageRoot = "/uploads/images/";
 app.get('/page/', function(req, resp, next){
 	fs.readdir(imagesFolder, function(err, images){
 		images = images.map(function(image){
@@ -497,6 +487,13 @@ app.post('/member/:_id/avatars.:format?', function(req, resp, next){
 		});
 	})
 });
+
+app.get('/chat.:format?', function(req, resp, next){
+	Persistence.message.findToday(function(err, doc){
+		resp.represent({view: 'chat/index', resource: new Resource({js: ['chat']}), model: doc});
+	});
+});
+
 app.use(function(err, req, resp, next){
 	if(err instanceof HttpStatus){
 		return resp.status(err.code).send(err.message);
@@ -558,6 +555,15 @@ var client = new Bus.AsA_Client();
 bus.start();
 console.log('starting subscriber');
 var stopBus = new Bus.AsA_Publisher(8128);
+require('./chatserver')({server: Server
+	, config: config
+	, cookieParser: cookieParser
+	, cookieSession: cookieSession
+	, bus: bus
+	, client: client
+	, Persistence: Persistence
+});
+
 stopBus.start();
 stopBus.iHandle('Stop', {
 	handle: function(command){
@@ -601,6 +607,12 @@ bus.iSubscribeTo('BackgroundWasChanged', {host: 'localhost', port: 8126}, {
 		memberSyncher();
 	}
 });
+bus.iSubscribeTo('MessageWasSaved', {host: 'localhost', port: 8126}, {
+	update: function(event){
+		Persistence.message.refresh();
+	}
+});
+
 function synchMostRecentMember(){
 	Persistence.member.findMostRecentlyActive({active: {"$lt":(new Date()).getTime()}}, function(err, member){
 		fs.writeFile(__dirname + '/data/index.json', JSON.stringify(member), function(err){

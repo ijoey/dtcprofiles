@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "multer": "*",
+    "socket.io": "*",
 	"body-parser":"*",
     "compression": "*",
     "cookie-parser": "*",

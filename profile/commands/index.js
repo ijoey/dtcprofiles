@@ -32,11 +32,16 @@ function ChangeBackground(member){
 	Command.apply(this, [member]);
 	this.header.name = 'ChangeBackground';
 }
+function NewMessage(message){
+	Command.apply(this, [message]);
+	this.header.name = 'NewMessage';
+}
 module.exports = {
 	AddMember: AddMember
 	, UpdateMember: UpdateMember
 	, DeleteMember: DeleteMember
 	, ChangeAvatar: ChangeAvatar
 	, ChangeBackground: ChangeBackground
+	, NewMessage: NewMessage
 	, Command: Command
 };

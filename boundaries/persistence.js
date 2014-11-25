@@ -1,5 +1,6 @@
 var Datastore = require('nedb');
 var Member = require('../profile/entities/member');
+var Message = require('../profile/entities/message');
 var config = null;
 
 function replaceLastMember(id, member){
@@ -17,6 +18,32 @@ var Db = {
 			if(callback) callback(err, numRemoved);
 		});
 		lastMemberDb.remove({id: id}, {multi:false}, function(err, numRemoved){});
+	}
+	, message: {
+		save: function(message, callback){
+			console.log(message);
+			messageDb.insert(message, function(err, doc){
+				if(err) console.log('save new message error:', err);
+				if(callback) callback(err, doc);
+			});
+		}
+		, findToday: function(callback){
+			var today = new Date();
+			today = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0);
+			messageDb.find({time: {$gte: today.getTime()}}).sort({time: -1}).exec(function(err, docs){
+				if(err) return callback(err, null);
+				if(docs.length === 0) return callback(null, null);
+				var list = [];
+				docs.forEach(function(doc){
+					list.push(new Message(doc));
+				});
+				callback(null, list);
+			});
+			
+		}
+		, refresh: function(){
+			messageDb.loadDatabase();
+		}
 	}
 	, member:{
 		findOne: function findOne(query, callback){
@@ -143,5 +170,6 @@ module.exports = function(c){
 	config = c;
 	db = new Datastore({filename: config.dataPath + '/members.db', autoload: true});
 	lastMemberDb = new Datastore({filename: config.dataPath + '/lastmember.db', autoload: true});
+	messageDb = new Datastore({filename: config.dataPath + '/messages.db', autoload: true});
 	return Db;
 };

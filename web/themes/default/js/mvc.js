@@ -80,6 +80,11 @@ if(!MM) var MM = {};
 				});
 			})();
 		}
+		for(var key in obj){
+			if(typeof(obj[key]) === 'function'){
+				this[key] = obj[key].bind(this);
+			}
+		}
 	};
 	namespace.Observable.prototype = {
 		subscribe: function subscribe(key, subscriber){
