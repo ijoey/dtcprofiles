@@ -62,3 +62,4 @@ sudo update-rc.d dtcprofiles defaults
 Setup a git remote. On Mac, have to mount the share first and set the remote url.
 git remote add pipbox /Volumes/PIPBox/REPOs/dtcprofiles
 
+File path in Windows post-receive is tricky.
