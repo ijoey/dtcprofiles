@@ -173,7 +173,17 @@
 			}
 			return message;			
 		}
-		
+		function hookGsearchResultClass(message){
+			if(message.text.indexOf('GsearchResultClass') === -1) return message;
+			var result = JSON.parse(message.text);
+			var searchResult = result.responseData.results;
+			message.text = '';
+			searchResult.forEach(function(s){
+				message.text += '<img src="{src}" width="200" />'.replace(/{src}/, s.unescapedUrl);
+			});
+			return message;
+		}
+		hooks.push({execute: hookGsearchResultClass});
 		hooks.push({execute: hookGithubResponse});
 		hooks.push({execute: hookListOfUsers});
 		hooks.push({execute: hookForImages});

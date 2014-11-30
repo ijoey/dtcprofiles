@@ -1,7 +1,18 @@
 <div id="profile" class="row profile">
-	<h1 id="name"><%= model.name %></h1>
-	<img class="img-circle avatar" id="avatar" src="<%= model.avatar %>" />
-	<div id="page" class="page"><%- model.page %></div>
+	<% if(model.background.length > 0){%>
+	<style>
+	#profile{
+		background-image: url("<%= model.background %>");
+	}
+	</style>	
+	<%}%>
+	<article class="container">
+		<header class="header">
+			<h1 id="name"><%= model.name %></h1>
+			<img class="img-circle avatar" id="avatar" src="<%= model.avatar %>" />		
+		</header>
+		<div id="page" class="page"><%- model.page %></div>
+	</article>
 	<input type="hidden" id="username" value="<%= model.username %>" />
-	<input type="hidden" id="background" value="<%= model.background %>" />
+	<img id="background" class="background" src="<%= model.background %>" />
 </div>

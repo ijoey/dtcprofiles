@@ -17,7 +17,7 @@ function byDate(a, b){
 }
 Message.prototype = {
 	humanFriendlyDate: function(date){
-		return moment(date).format("dddd, MMMM DD, YYYY");
+		return moment(date).format("dddd, MMMM DD, YYYY hh:mm:ss a");
 	}
 	, w3cFormat: function(date){
 		return moment.utc(date).format();

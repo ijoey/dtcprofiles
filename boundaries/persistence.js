@@ -150,8 +150,8 @@ var Db = {
 				lastMemberDb.insert(doc, function(err, docs){
 					if(err) console.log('newMemberWasSubmitted error inserting last member:', err);
 				});
+				if(callback) callback(err, doc);
 			});
-			if(callback) callback(err, doc);
 		});
 	}
 	, getLastMember: function getLastMember(callback){

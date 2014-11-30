@@ -3,47 +3,48 @@ html {
 	font-size: 100%;
 }
 body {
-	background: none;
-	color: #666666;
+	color: black;
 	line-height: 1.7857;
 	font-weight: normal;
 	font-style: normal;
-	font-family: "Lucida Grande", "Lucida Sans Unicode", "Helvetica", "Arial", "Verdana", "sans-serif";
+	font-family: "Proxima Nova", "helvetica neue", helvetica, verdana, arial, tahoma, sans-serif;
 }
 
 h1{
-	font-size: 5em;
+	font-size: 40px;
 }
 h2{
-	font-size: 4em;
+	font-size: 30px;
 }
 h3{
-	font-size: 2em;
+	font-size: 25px;
 }
 h4, p{
-	font-size: 1em;
+	font-size: 20px;
 }
 h5{
-	font-size: .5em;
+	font-size: 20px;
 }
 h6{
-	font-size: .5em;
+	font-size: 0px;
 }
 h1,h2,h3,h4,h5,h6
 , .h1, .h2, .h3, .h4, .h5, .h6{
 	text-align: left;
-	color: #111111;
+	line-height: 1em;
 	letter-spacing: 1px;
 	padding: 0;
 	margin: 0 0 .5em 0;
-	font-weight: 200;
+	font-weight: 400;
 	font-family: "Myriad Set Pro", "Helvetica Neue", "Helvetica", "Arial", "Verdana", "sans-serif";
 }
 :focus {outline:none;}
 ::-moz-focus-inner {border:0;}
-main.container-fluid{
-	margin-bottom: 50px;
-	margin-left: 100px;
+#main{
+	padding-right: 0;
+	padding-left: 0;
+	margin-right: 0;
+	margin-left: 0;
 }
 .comment legend{
 	border-bottom: 0;
@@ -149,20 +150,39 @@ body{
 	background-size: cover;
 }
 .profile{
+	width: 100%;
+	height: 100%;
 	position: fixed;
-	left:150px;
-	top: 30px;
-	padding: 10px 30px 30px 30px;
-	width: 40%;
-	background-color:rgba(255,255,255,0.60);
-	border-radius: .5em;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-position: top left;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: cover;
+	background-color: black;
 }
+.profile .background{
+	display: none;
+}
+.row.profile{
+	margin-right: 0;
+	margin-left: 0;
+}
+.profile .container{
+	width: 50%;
+	position: relative;
+	color: white;
+}
+
 .profile .avatar{
 	position: absolute;
 	top: 5px;
-	right: 5px;
+	right: -10em;
 	width: 10em;
 	height: 10em;
+	z-index: 3;
 }
 .profile .avatar img{
 	width: 100%;
@@ -171,15 +191,43 @@ body{
 .profile .avatar input{
 	width: 100%;
 }
+.profile .header{
+	padding: 0;
+	margin: 0;
+}
+.profile .container{
+	z-index: 2;
+	border-radius: 15px;
+	margin-left: 100px;
+	padding: 10px;
+}
+
+.pages{
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+}
+.pages header{
+	width: 100%;
+}
+.pages header *{
+	text-align: center;
+}
+.pages article{
+	width: 100%;
+	height: 100%;
+}
+
 .member .avatar{
 	width: 100px;
 	height: 100px;
 }
+
 form .file{
 	height: 100px;
-}
-.page{
-	width: 80%;
 }
 .off-canvas{
 	
@@ -198,20 +246,12 @@ form .file{
 	padding: 0;
 }
 .discussion time{
-	position: absolute;
-	top: 0;
-	left: 50%;
-	margin-left: -25%;
 }
 .discussion .sent{
 	border: none;
 	height: 20px;
 	width: 100%;
 	background: none;
-}
-.discussion .sent time{
-	margin-left: -75px;
-	width: 150px;
 }
 .discussion .message time{
 	display: none;

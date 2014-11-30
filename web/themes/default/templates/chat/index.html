@@ -22,13 +22,24 @@ var member = <%- JSON.stringify(request.user)%>;
 			var next = {username: null};
 			var i = 0;
 			var ubounds = model ? model.length : 0;
+			var isFromSamePerson = false;
+			var firstMessageFromPerson = 0;
 			for(i; i < ubounds; i++){
 				var message = model[i];
 				current = message.from;
-				if(current.username !== next.username){
+				next = i+1 < model.length ? model[i+1].from : {username: null};
+				isFromSamePerson = current.username === next.username;
+				if(isFromSamePerson){
+					firstMessageFromPerson++;
+				}else{
+					firstMessageFromPerson = 0;
+				}
+				if(firstMessageFromPerson === 1){
 		%>
-		<li class="<%= current.username === request.user.username ? 'self' : 'other'%>">
+		<li class="sent">
 			<time datetime="<%= message.w3cFormat(message.time) %>"><%= message.humanFriendlyDate(message.time) %></time>
+		</li>
+		<li class="<%= current.username === request.user.username ? 'self' : 'other'%>">
 			<div class="avatar">
 				<img data-src="<%= message.from.avatar %>" src="<%= message.from.avatar %>" />
 			</div>
@@ -40,8 +51,7 @@ var member = <%- JSON.stringify(request.user)%>;
 				<time datetime="<%= message.w3cFormat(message.time) %>" class="today"><%= message.humanFriendlyDate(message.time) %></time>
 			</div>
 		<%
-				next = i+1 < model.length ? model[i+1].from : {username: null};
-				if(current.username !== next.username){
+				if(firstMessageFromPerson === 0){
 		%>
 		</li>
 		<%

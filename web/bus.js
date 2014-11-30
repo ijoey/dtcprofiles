@@ -180,7 +180,6 @@ function AsA_Client(){
 }
 AsA_Client.prototype = {
 	send: function(command){
-		console.log('queing ', command.header.endpoint);
 		this.commands.push(command);
 	}
 	, request: function(message, callback){
@@ -254,7 +253,6 @@ function reconnect(message, callback){
 }
 function sendMessageOnce(message, callback){
 	if(!message) return;
-	console.log('sendMessageOnce', message.header);
 	var socket = net.connect(message.header.endpoint.port, message.header.endpoint.host, function(){
 		socket.end(JSON.stringify(message), 'utf-8');
 	});

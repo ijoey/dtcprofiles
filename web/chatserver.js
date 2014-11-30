@@ -22,10 +22,11 @@ module.exports = function(server){
 				}
 				Persistence.member.findOne({username: socket.request._query.username}, function(err, doc){
 					if(doc){
-						console.log(doc.avatar);
 						nicknames[doc.username] = doc;						
+						next();
+					}else{
+						next(401);						
 					}
-					next();
 				});
 			});
 		});
@@ -55,10 +56,9 @@ module.exports = function(server){
 		
 		});
 		socket.on('left', function(nick){
-			console.log(nick, ' has left');
+			//console.log(nick, ' has left');
 		});
 		socket.on('disconnect', function () {
-			console.log('disconnect->', socket.nickname);
 			if (!socket.nickname) return;
 			delete nicknames[socket.nickname];
 			socket.broadcast.emit('left', socket.nickname);
@@ -66,4 +66,5 @@ module.exports = function(server){
 		});
 		socket.emit('connected', nicknames);
 	});
+	return io;
 };

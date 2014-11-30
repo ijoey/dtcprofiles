@@ -24,7 +24,6 @@
 		<section id="main" class="container-fluid" role="main">
 			<%- output %>
 		</section>
-		<section id="next" class="container-fluid off-canvas right"></section>
 		<aside class="nav">
 			<button id="menuButton" class="menu glyphicon glyphicon-align-justify"><span>Menu</span></button>
 			<nav id="menu">
@@ -40,10 +39,9 @@
 		</aside>
 		<script src="/public/js/mvc.js"></script>
 	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-		<script type="text/javascript" src="/public/bootstrap/js/bootstrap.min.js"></script>
 		<script src="/public/js/menu.js"></script>
 		<script src="/public/js/hogan-2.0.0.min.js"></script>
-		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
 		<% resource.js.forEach(function(script){%><script type="text/javascript" src="/public/js/<%= script %>.js"></script><%}) %>
 	</body>
 </html>

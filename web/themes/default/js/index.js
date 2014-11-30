@@ -1,30 +1,139 @@
 (function(n, win){
-	n.CreatePageFlipper = function(container, model){
+	n.CreatePageFlipper = function(container, model, delegate){
+		var current = 0;
 		var self = {
 			container: container
 			, model: model
-			, hidden: document.createElement('div')
-			, update: function(key, old, v){
-				this.hidden.innerHTML = v;
-				var image = new Image();
-				this.container.innerHTML = '';
-				image.onload = function(e){
-					document.body.style['backgroundImage'] = 'url("' + image.src + '")';
-					this.container.innerHTML = this.hidden.innerHTML;					
-				}.bind(this);
-				image.src = this.hidden.querySelector('#background').value;
-			}
+			, divs: []
+			, template: null
+			, delegate: delegate
 			, hide: function(){
-				document.body.style['backgroundImage'] = null;
-				this.container.style["display"] = 'none';
+				this.divs[current].style['display'] = 'none';
 			}
 			, show: function(){
-				this.container.style["display"] = 'block';
+				this.divs[current].style['display'] = 'block';
+			}
+			, flip: function(){
+				if(this.model.length === 0) return;
+				this.divs[current].style['display'] = 'none';
+				current++;
+				if(current >= this.model.length -1 ) current = 0;
+				this.divs[current].style['display'] = 'block';
+			}
+			, update: function(key, old, v){
+				var div = this.template.cloneNode(true);
+				div.id = 'page_' + v.name;
+				div.innerHTML = v.contents;			
+				div.style['display'] = 'none';
+				this.divs.push(div);
+				this.container.parentNode.insertBefore(div, this.container);
+			}
+			, remove: function(key, old, v){
+				var i = 0;
+				var ubounds = this.divs.length;
+				for(i; i < ubounds; i++){
+					if(this.divs[i].id === 'page_' + v.name){
+						this.divs.splice(i, 1);
+						break;
+					}
+				}
 			}
 		};
+		self.template = self.container.cloneNode(true);
 		self.model.subscribe('push', self.update.bind(self));
-		self.hidden.style['display'] = 'none';
-		document.body.appendChild(self.hidden);
+		self.model.subscribe('remove', self.remove.bind(self));
+		return self;
+	};
+	
+	n.CreateMemberFlipper = function(container, model, delegate){
+		var current = 0;
+		var self = {
+			container: container
+			, model: model
+			, divs: []
+			, template: null
+			, delegate: delegate
+			, hide: function(){
+				this.divs[current].style['display'] = 'none';
+			}
+			, show: function(){
+				this.divs[current].style['display'] = 'block';
+			}
+			, flip: function(){
+				if(this.model.length === 0) return;
+				this.divs[current].style['display'] = 'none';
+				current++;
+				if(current >= this.model.length -1 ) current = 0;
+				this.divs[current].style['display'] = 'block';
+			}
+			, update: function(key, old, v){
+				var div = this.template.cloneNode(true);
+				var name = div.querySelector('#name');
+				var avatar = div.querySelector('#avatar');
+				var username = div.querySelector('#username');
+				var background = div.querySelector('#background');
+				var page = div.querySelector('#page');
+				div.id = 'profile_' + v.username;
+				name.id = 'name_' + v.username;
+				avatar.id = 'avatar_' + v.username;
+				username.id = 'username_' + v.username;
+				background.id = 'background_' + v.username;
+				page.id = 'page_' + v.username;
+				div.style['background-image'] = 'url("' + v.background + '")';
+				
+				if(v.background.length === 0){
+					div.removeChild(background);
+				}
+				name.innerHTML = v.name;
+				avatar.src = v.avatar;
+				username.value = v.username;
+				background.src = v.background;
+				page.innerHTML = v.page;
+				div.style['display'] = 'none';
+				this.divs.push(div);
+				this.container.parentNode.insertBefore(div, this.container);
+			}
+			, remove: function(key, old, v){
+				var i = 0;
+				var ubounds = this.divs.length;
+				for(i; i < ubounds; i++){
+					if(this.divs[i].id === 'profile_' + v.username){
+						this.divs.splice(i, 1);
+						break;
+					}
+				}
+			}
+		};
+		self.template = self.container.cloneNode(true);
+		self.model.subscribe('push', self.update.bind(self));
+		self.model.subscribe('remove', self.remove.bind(self));
+		return self;
+	};
+	n.CreateMemberGetter = function(delegate, model){
+		var self = {
+			delegate: delegate
+			, model: model
+			, fetch: function(callback){
+				var xhr = new XMLHttpRequest();
+				var self = this;
+				var url = '/members.json';
+				xhr.open("GET", url, true);
+				xhr.onload = function(e){
+					this.onload(e);
+					if(callback) {
+						callback(e.target);
+					}
+				}.bind(this);
+				xhr.send();
+			}
+			, onload: function(e){
+				var members = JSON.parse(e.target.responseText);
+				members.forEach(function(member){
+					this.model.push(member);
+				}.bind(this));
+			}
+		};
+		
 		return self;
 	};
 	n.CreateNextMemberGetter = function(delegate, model){
@@ -34,8 +143,9 @@
 			, fetchNext: function(username, callback){
 				var xhr = new XMLHttpRequest();
 				var self = this;
-				var url = '/members/after/' + username + '.phtml'
+				var url = '/members/after/' + username + '.phtml';
 				if(username === null) url = '/members/first.phtml';
+				console.log(url);
 				xhr.open("GET", url, true);
 				xhr.onload = function(e){
 					self.onload(e);
@@ -67,7 +177,7 @@
 		return self;
 	};
 	
-	n.CreateNextPageGetter = function(container, model, delegate){
+	n.CreatePageGetter = function(container, model, delegate){
 		var xhr = new XMLHttpRequest();
 		var counter = 0;
 		var self = {
@@ -95,89 +205,40 @@
 			, hide: function(){
 				this.container.style['display'] = 'none';
 			}
-			, loadAllThePages: function(callback){
+			, fetch: function(callback){
 				var url = '/pages.json';
 				xhr.open("GET", url, true);
 				xhr.onload = function(e){
 					var response = JSON.parse(e.target.responseText);
-					callback(response);
-				};
+					response.files.forEach(function(file){
+						this.model.push(file);
+					}.bind(this));
+					if(callback){
+						callback(response);						
+					}
+				}.bind(this);
 				xhr.send();
 			}
 		};
-		self.loadAllThePages(function(response){
-			response.files.forEach(function(file){
-				this.model.push(file);
-			}.bind(this));
-		}.bind(self));
 		
 		return self;
 	};
-	n.CreateDocumentSlider = function(container, model, delegate){
-		var isMouseDown = false;
-		var defaults = {
-			position: container.style['position']
-			, left: container.style['left']
-			, top: container.style['top']
-		};
-		var self = {
-			container: container
-			, model: model
-			, delegate: delegate
-			, mouseDown: function(e){
-				e.preventDefault();
-				isMouseDown = true;
-			}
-			, mouseUp: function(e){
-				e.preventDefault();
-				isMouseDown = false;
-			}
-			, mouseMove: function(e){
-				if(isMouseDown){
-					this.container.style['position'] = 'absolute';	
-					this.container.style['left'] = e.clientX + 'px';
-					this.container.style['top'] = 0;			
-				}
-			}
-		};
-		self.container.addEventListener('mousedown', self.mouseDown.bind(self), true);
-		self.container.addEventListener('mouseup', self.mouseUp.bind(self), true);
-		self.container.addEventListener('mousemove', self.mouseMove.bind(self), true);
-		return self;
-	};
-	n.CreateClickDisabler = function(container, model, delegate){
-		var isMouseDown = false;
-		var defaults = {
-			position: container.style['position']
-			, left: container.style['left']
-			, top: container.style['top']
-		};
-		var self = {
-			container: container
-			, model: model
-			, delegate: delegate
-			, mouseDown: function(e){
-				e.preventDefault();
-				isMouseDown = true;
-			}
-		};
-		self.container.addEventListener('mousedown', self.mouseDown.bind(self), true);
-		return self;
-	};
-	var app = (function(win, member){
+	win.app = (function(win, member){
 		var menu = new n.Observable({});
+		var period = 10000;
 		var member = {name: document.getElementById('name').innerHTML
 			, avatar: document.getElementById('avatar').src
 			, username: document.getElementById('username').value
 			, background: document.getElementById('background').value};
 		
-		document.body.style['backgroundImage'] = 'url("' + member.background + '")';	
 		var members = new n.Observable.List([member]);
+		var pages = new n.Observable.List([]);
+		var counter = 0;
 		var self = {
 			views: []
 			, interval: null
 			, pageWasSelected: function(publisher, info){
-				pageFlipperView.show();
+				memberFlipperView.show();
 				nextPageGetter.hide();
 				this.stop();
 				
@@ -186,37 +247,47 @@
 				}
 			}
 			, start: function(){
-				var counter = 0;
 				this.interval = setInterval(function(){
-					if(counter > 10) counter = 0;
 					counter++;
 					if(counter % 2 === 0){
-						nextMemberGetter.fetchNext(document.getElementById('username').value, function(){
-							pageFlipperView.show();
-							nextPageGetter.hide();
-						});
+						memberFlipperView.flip();						
+						memberFlipperView.show();
+						pageFlipperView.hide();
 					}else{
-						nextPageGetter.fetchNext(function(){
-							pageFlipperView.hide();
-							nextPageGetter.show();
-						});
+						pageFlipperView.flip();
+						memberFlipperView.hide();
+						pageFlipperView.show();
 					}
-				}, 11000);
+				}.bind(this), period);
 			}
 			, stop: function(){
 				clearInterval(this.interval);
 			}
+			, member: member
+			, members: members
+			, pages: pages
 		};
-		var nextPageGetter = n.CreateNextPageGetter(document.getElementById('next'), new n.Observable.List(), self);
-		var nextMemberGetter = n.CreateNextMemberGetter(self, members);
-		var pageFlipperView = n.CreatePageFlipper(document.getElementById('main'), members);
-		var clickDisabler = n.CreateClickDisabler(document.getElementById('profile'), member, self);
+		var pageTemplate = document.createElement('div');
+		pageTemplate.className = 'pages';
+		document.getElementById('main').appendChild(pageTemplate);
+		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('profile'), members);
+		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
+		var memberGetter = n.CreateMemberGetter(self, members);
+		var pageGetter = n.CreatePageGetter(document.getElementById('main'), pages, self);
+		memberGetter.fetch();
+		pageGetter.fetch();
+		
+		//var nextMemberGetter = n.CreateNextMemberGetter(self, members);
 		//TODO: I want to handle swipes trying to slide the page, but I need to 
 		// build teh chat app first.
 		//var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
-		self.views.push(pageFlipperView);
+		//self.views.push(memberFlipperView);
+		
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
 		self.start();
+		setTimeout(function(){
+			memberFlipperView.container.style['display'] = 'none';			
+		}, period);
 		return self;
 	})(win);
 })(MM, window);

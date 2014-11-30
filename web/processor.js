@@ -8,14 +8,14 @@ bus.start();
 bus.iHandle('NewMessage', {
 	handle: function(command){
 		Persistence.message.save(command.body, function(err, doc){
-			bus.publish(new Events.MessageWasSaved(command.body));
+			bus.publish(new Events.MessageWasSent(command.body));
 		});
 	}
 });
 
 bus.iHandle('Stop', {
 	handle: function(command){
-		console.log('memberProcessor received stop command', command);
+		console.log('processor received stop command', command);
 		process.exit(1);
 	}
 });

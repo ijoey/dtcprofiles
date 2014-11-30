@@ -19,6 +19,7 @@ var Persistence = require('../boundaries/persistence')(config);
 var Member = require('../profile/entities/member');
 var Ejs = require('ejs');
 var Https = require('https');
+var Http = require('http');
 var QueryString = require('querystring');
 var XmlToJson = require('xml2js');
 var uploadsFolder = rootPath + '/uploads/';
@@ -28,7 +29,7 @@ var webDataFolder = rootPath + '/web/data';
 var membersFolder = webDataFolder + '/members';
 var pagesFolder = webDataFolder + '/pages';
 var httpImageRoot = "/uploads/images/";
-
+var Moment = require('moment');
 
 function Resource(obj){
 	this.layout = 'default';
@@ -49,7 +50,6 @@ var represent = require('represent').Represent({
 });
 function createFolderIfDoesntExist(folder){
 	if(!fs.existsSync(folder)){
-		console.log('creating ' + folder);
 		fs.mkdirSync(folder);
 	}
 }
@@ -163,8 +163,8 @@ Folder.isValid = function(fileName){
 	return /^\w+(\.\w+)?$/.test(fileName);
 };
 
-function Page(file, contents){
-	this.file = file;
+function Page(name, contents){
+	this.name = name.replace(/\.\w+$/, '');
 	this.contents = contents;
 }
 
@@ -228,6 +228,7 @@ app.get("/members/after/:username.:format?", function(req, resp, next){
 			return findFirstMember(resp);
 		}
 		var member = new Member(docs[0]);
+		member.next = docs[1];
 		resp.represent({view: 'index/index'
 			, resource: new Resource({title: member.name, css: ['member']})
 			, model: member});
@@ -254,14 +255,17 @@ app.get('/pages.:format?', function(req, resp, next){
 			console.log(err);
 			return next(err);
 		}
-		
-		var extensionStripped = files.map(function(f){
-			return f.replace(/\.\w+$/, '');
-		});
+		var f = null;
+		var pages = [];
+		while(f = files.shift()){
+			var data = fs.readFileSync(pagesFolder + '/' + f);
+			pages.push(new Page(f, data.toString()));
+		}
 		resp.represent({
 			view: 'pages/index'
 			, resource: new Resource({})
-			, model: new Folder(extensionStripped)});
+			, model: new Folder(pages)});					
+		
 	});
 });
 
@@ -315,8 +319,27 @@ app.get('/page/:file.:format?', function(req, resp, next){
 			});
 			resp.represent({
 				view: 'pages/edit'
-				, resource: new Resource({title: "Upload Images", js: ['page']})
+				, resource: new Resource({title: "Page", js: ['page']})
 				, model: {page: new Page(file, data.toString()), images: images}});
+		});
+	});
+});
+app.delete('/pages/:file.:format?', function(req, resp, next){
+	var fileName = req.params.file + '.html';
+	fs.unlink(pagesFolder + '/' + fileName, function(err){
+		var files = fs.readdir(pagesFolder, function(err, files){
+			if(err){
+				console.log(err);
+				return next(err);
+			}
+		
+			var extensionStripped = files.map(function(f){
+				return f.replace(/\.\w+$/, '');
+			});
+			resp.represent({
+				view: 'pages/index'
+				, resource: new Resource({})
+				, model: new Folder(extensionStripped)});
 		});
 	});
 });
@@ -555,7 +578,7 @@ var client = new Bus.AsA_Client();
 bus.start();
 console.log('starting subscriber');
 var stopBus = new Bus.AsA_Publisher(8128);
-require('./chatserver')({server: Server
+var chatServer = require('./chatserver')({server: Server
 	, config: config
 	, cookieParser: cookieParser
 	, cookieSession: cookieSession
@@ -563,7 +586,6 @@ require('./chatserver')({server: Server
 	, client: client
 	, Persistence: Persistence
 });
-
 stopBus.start();
 stopBus.iHandle('Stop', {
 	handle: function(command){
@@ -577,6 +599,7 @@ bus.iSubscribeTo('MemberWasUpdated', {host: 'localhost', port: 8126}, {
 		Persistence.refresh();
 		var member = event.body;
 		memberSyncher();
+		chatServer.sockets.emit('MemberWasUpdated', event.body)
 	}
 });
 bus.iSubscribeTo('MemberWasCreated', {host: 'localhost', port: 8126}, {
@@ -584,31 +607,108 @@ bus.iSubscribeTo('MemberWasCreated', {host: 'localhost', port: 8126}, {
 		Persistence.refresh();
 		var member = event.body;
 		memberSyncher();
+		chatServer.sockets.emit('MemberWasCreated', event.body)
 	}
 });
 bus.iSubscribeTo('MemberWasDeleted', {host: 'localhost', port: 8126}, {
 	update: function(event){
 		Persistence.refresh();
-		var post = event.body;
+		var member = event.body;
 		memberSyncher();
 	}
 });
 bus.iSubscribeTo('AvatarWasChanged', {host: 'localhost', port: 8126}, {
 	update: function(event){
 		Persistence.refresh();
-		var post = event.body;
+		var member = event.body;
 		memberSyncher();
+		chatServer.sockets.emit('AvatarWasChanged', event.body)
 	}
 });
 bus.iSubscribeTo('BackgroundWasChanged', {host: 'localhost', port: 8126}, {
 	update: function(event){
 		Persistence.refresh();
-		var post = event.body;
+		var member = event.body;
 		memberSyncher();
+		chatServer.sockets.emit('BackgroundWasChanged', event.body)
 	}
 });
-bus.iSubscribeTo('MessageWasSaved', {host: 'localhost', port: 8126}, {
+
+var bots = [];
+var hubot = {username: 'hubot', avatar: '/public/images/hubot.png'};
+bots.push(
+	{
+		doesUnderstand: function(command){
+			return /^time/.test(command);
+		}
+		, execute: function(command, socket){
+			socket.emit('message', {from: hubot, text: Moment(new Date()).format("dddd, MMMM DD, YYYY hh:mm:ss a")});
+		}
+	}
+);
+bots.push(
+	{
+		doesUnderstand: function(command){
+			if(/^google images /i.test(command)) return true;
+			if(/(?:mo?u)?sta(?:s|c)he?(?: me)? (.*)/i.test(command)) return true;
+			return false;
+		}
+		, execute: function(command, socket){
+			if(/^google images /i.test(command)) return this.google(command, socket);
+			if(/(?:mo?u)?sta(?:s|c)he?(?: me)? (.*)/i.test(command)) return this.moustache(command, socket);
+		}
+		, moustache: function(command, socket){
+			var type = /(\d)$/.exec(command);
+			if(type) type = type[1];
+			else type = Math.floor(Math.random() * 6);
+			var url = 'http://mustachify.me/' + type + '?src=';
+			var target = /(?:mo?u)?sta(?:s|c)he?(?: me)? (.*)/i.exec(command)[1];
+			this.queryGoogle(target, 'face', function(err, data){
+				var result = JSON.parse(data);
+				var img = result.responseData.results[0];
+				socket.emit('message', {from: hubot, text: '<img width="200" src="' + url + encodeURIComponent(img.unescapedUrl) + '" />'});
+			});
+		}
+		, google: function(command, socket){
+			var query = /^google images [animated]?(.*)/i.exec(command)[1];
+			var type = /animated/.test(command) ? 'animated' : 'face';
+			this.queryGoogle(query, type, function(err, data){
+				socket.emit('message', {from: hubot, text: data});
+			});
+		}
+		, queryGoogle: function(query, type, callback){
+			var url = 'http://ajax.googleapis.com/ajax/services/search/images?';
+			var q = {
+				imgtype: type
+				, q: query
+				, v: '1.0'
+				, rsz: '8'
+			};
+			Http.get(url + QueryString.stringify(q), function(res){
+				var data = '';
+				res.on('data', function(chunk){
+					data += chunk.toString();
+				});
+				res.on('end', function(){
+					callback(null, data);
+				});
+			}).on('error', function(e){
+				console.log('got an error from google', e);
+			});
+		}
+	}
+);
+
+bus.iSubscribeTo('MessageWasSent', {host: 'localhost', port: 8126}, {
 	update: function(event){
+		if(event.body.text.indexOf('hubot') > -1){
+			var hubotCommand = /^hubot\s(.*)/ig.exec(event.body.text)[1];
+			bots.forEach(function(bot){
+				if(bot.doesUnderstand(hubotCommand)){
+					bot.execute(hubotCommand, chatServer.sockets);
+				}
+			})
+		}
 		Persistence.message.refresh();
 	}
 });

@@ -33,9 +33,9 @@ function BackgroundWasChanged(member){
 	this.header.name = 'BackgroundWasChanged';
 }
 
-function MessageWasSaved(member){
+function MessageWasSent(member){
 	Event.apply(this, [member]);
-	this.header.name = 'MessageWasSaved';
+	this.header.name = 'MessageWasSent';
 }
 
 module.exports = {
@@ -44,6 +44,6 @@ module.exports = {
 	, MemberWasDeleted: MemberWasDeleted
 	, AvatarWasChanged: AvatarWasChanged
 	, BackgroundWasChanged: BackgroundWasChanged
-	, MessageWasSaved: MessageWasSaved
+	, MessageWasSent: MessageWasSent
 	, Event: Event
 };
