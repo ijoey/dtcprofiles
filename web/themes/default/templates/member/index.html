@@ -15,10 +15,5 @@
 			<button type="submit">Delete</button>
 		</form>
 		<% }%>
-		<% if(request.user && member.canEdit(request.user)){%>
-		<section itemprop="articleBody">
-			<%- member.page %>
-		</section>
-		<%}%>
 	</div>
 <%})%>
