@@ -270,14 +270,13 @@
 		var pageTemplate = document.createElement('div');
 		pageTemplate.className = 'pages';
 		document.getElementById('main').appendChild(pageTemplate);
-		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('#' + member.username), members);
+		var memberFlipperView = n.CreateMemberFlipper(document.getElementById(member.username), members);
 		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
 		var memberGetter = n.CreateMemberGetter(self, members);
 		var pageGetter = n.CreatePageGetter(document.getElementById('main'), pages, self);
 		memberGetter.fetch();
 		pageGetter.fetch();
 		
-		//var nextMemberGetter = n.CreateNextMemberGetter(self, members);
 		//TODO: I want to handle swipes trying to slide the page, but I need to 
 		// build teh chat app first.
 		//var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
