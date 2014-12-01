@@ -73,7 +73,7 @@
 				var username = div.querySelector('#username');
 				var background = div.querySelector('#background');
 				var page = div.querySelector('#page');
-				div.id = 'profile_' + v.username;
+				div.id = v.username;
 				name.id = 'name_' + v.username;
 				avatar.id = 'avatar_' + v.username;
 				username.id = 'username_' + v.username;
@@ -97,7 +97,7 @@
 				var i = 0;
 				var ubounds = this.divs.length;
 				for(i; i < ubounds; i++){
-					if(this.divs[i].id === 'profile_' + v.username){
+					if(this.divs[i].id === v.username){
 						this.divs.splice(i, 1);
 						break;
 					}
