@@ -164,7 +164,7 @@ Folder.isValid = function(fileName){
 };
 
 function Page(name, contents){
-	this.name = name.replace(/\.\w+$/, '');
+	this.name = name ? name.replace(/\.\w+$/, '') : null;
 	this.contents = contents;
 }
 
