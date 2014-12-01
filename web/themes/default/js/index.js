@@ -77,17 +77,17 @@
 				name.id = 'name_' + v.username;
 				avatar.id = 'avatar_' + v.username;
 				username.id = 'username_' + v.username;
-				background.id = 'background_' + v.username;
+				if(background){
+					background.id = 'background_' + v.username;
+					background.src = v.background;					
+				}
 				page.id = 'page_' + v.username;
-				div.style['background-image'] = 'url("' + v.background + '")';
-				
-				if(v.background.length === 0){
-					div.removeChild(background);
+				if(v.background && v.background.length > 0){
+					div.style['background-image'] = 'url("' + v.background + '")';
 				}
 				name.innerHTML = v.name;
 				avatar.src = v.avatar;
 				username.value = v.username;
-				background.src = v.background;
 				page.innerHTML = v.page;
 				div.style['display'] = 'none';
 				this.divs.push(div);
@@ -226,10 +226,11 @@
 	win.app = (function(win, member){
 		var menu = new n.Observable({});
 		var period = 10000;
+		var background = document.getElementById('background');
 		var member = {name: document.getElementById('name').innerHTML
 			, avatar: document.getElementById('avatar').src
 			, username: document.getElementById('username').value
-			, background: document.getElementById('background').value};
+			, background: background ? background.value : null};
 		
 		var members = new n.Observable.List([member]);
 		var pages = new n.Observable.List([]);

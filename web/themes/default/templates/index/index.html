@@ -1,11 +1,4 @@
 <div id="<%= model.username%>" class="row profile">
-	<% if(model.background.length > 0){%>
-	<style>
-	#<%= model.username %>{
-		background-image: url("<%= model.background %>");
-	}
-	</style>	
-	<%}%>
 	<article class="container">
 		<header class="header">
 			<h1 id="name"><%= model.name %></h1>
@@ -14,5 +7,7 @@
 		<div id="page" class="page"><%- model.page %></div>
 	</article>
 	<input type="hidden" id="username" value="<%= model.username %>" />
+	<% if(model.background.length > 0){%>
 	<img id="background" class="background" src="<%= model.background %>" />
+	<%}%>
 </div>
