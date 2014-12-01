@@ -1,4 +1,4 @@
-<div id="<%= model.username%>" class="row profile">
+<div id="<%= model.username%>" class="row profile" style="<%= model.background.length > 0 ? 'background-url: url(' + model.background + ')' : ''%>">
 	<article class="container">
 		<header class="header">
 			<h1 id="name"><%= model.name %></h1>
