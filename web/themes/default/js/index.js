@@ -239,7 +239,7 @@
 			, interval: null
 			, pageWasSelected: function(publisher, info){
 				memberFlipperView.show();
-				nextPageGetter.hide();
+				pageFlipperView.hide();
 				this.stop();
 				
 				if(/\/(index)?$/.test(info.url)){
@@ -270,7 +270,7 @@
 		var pageTemplate = document.createElement('div');
 		pageTemplate.className = 'pages';
 		document.getElementById('main').appendChild(pageTemplate);
-		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('profile'), members);
+		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('#' + member.username), members);
 		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
 		var memberGetter = n.CreateMemberGetter(self, members);
 		var pageGetter = n.CreatePageGetter(document.getElementById('main'), pages, self);
