@@ -593,6 +593,11 @@ stopBus.iHandle('Stop', {
 		process.exit(1);
 	}
 });
+bus.iSubscribeTo('CustomerSignedUpForEmail', {host: 'localhost', port: 8129}, {
+	update: function(event){
+		chatServer.sockets.emit('message', {from: hubot, text: event.body + ' just signed up for the SBOTD email'});
+	}
+});
 
 bus.iSubscribeTo('MemberWasUpdated', {host: 'localhost', port: 8126}, {
 	update: function(event){

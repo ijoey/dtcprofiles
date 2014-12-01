@@ -125,7 +125,10 @@
 			, model: model
 			, delegate: delegate
 			, messageWasSubmitted: function(message){
-				if(message && message.text.length > 0) this.model.push(message);
+				if(!message) return;
+				if(!message.text) return;
+				if(message.text.length === 0) return;
+				this.model.push(message);
 			}
 			, message: function(message){
 				if(message && message.text.length > 0){
@@ -150,7 +153,7 @@
 				if(users.what === 'github list of users'){
 					message.text = '<ul>';
 					users.items.forEach(function(user){
-						message.text += '<li><a href="' + user.html_url + '"><img src="' + window.location.origin + user.avatar_url + '" /></a></li>';
+						message.text += '<li><a href="' + user.html_url + '"><img class="img-circle avatar" src="' + window.location.origin + user.avatar_url + '" /></a></li>';
 					});
 					message.text += '</ul>';
 				}
@@ -165,7 +168,7 @@
 					message.text = '<ul>';
 					for(key in users){
 						if(!users[key].avatar) continue;
-						message.text += '<li><img src="' + window.location.origin + users[key].avatar + '" /></a></li>';
+						message.text += '<li><img  class="img-circle avatar" src="' + window.location.origin + users[key].avatar + '" /></a></li>';
 					}
 					message.text += '</ul>';
 				}
@@ -335,6 +338,9 @@
 				if(v.resize) v.resize({h: e.target.document.documentElement.clientHeight, w: e.target.document.documentElement.clientWidth});
 			});
 		};
+		self.CustomerSignedUpForEmail = function(email){
+			console.log(email);
+		};
 		
 		var socket;
 		if(win.member){
@@ -347,6 +353,7 @@
 			socket.on('reconnect', self.reconnect);
 			socket.on('reconnecting', self.reconnecting);
 			socket.on('error', self.error);
+			socket.on('CustomerSignedUpForEmail', self.CustomerSignedUpForEmail);
 			var messageView = null;
 			views.push(n.DiscussionView(document.getElementById('messagesView'), messages, self));
 			views.push(n.RosterView(document.getElementById('rosterView'), roster, self));

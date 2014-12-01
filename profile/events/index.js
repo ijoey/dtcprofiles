@@ -37,6 +37,10 @@ function MessageWasSent(member){
 	Event.apply(this, [member]);
 	this.header.name = 'MessageWasSent';
 }
+function CustomerSignedUpForEmail(email){
+	Event.apply(this, [email]);
+	this.header.name = 'CustomerSignedUpForEmail';
+}
 
 module.exports = {
 	MemberWasUpdated: MemberWasUpdated
@@ -45,5 +49,6 @@ module.exports = {
 	, AvatarWasChanged: AvatarWasChanged
 	, BackgroundWasChanged: BackgroundWasChanged
 	, MessageWasSent: MessageWasSent
+	, CustomerSignedUpForEmail: CustomerSignedUpForEmail
 	, Event: Event
 };

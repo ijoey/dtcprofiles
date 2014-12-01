@@ -25,7 +25,7 @@ module.exports = function(server){
 						nicknames[doc.username] = doc;						
 						next();
 					}else{
-						next(401);						
+						next(401);	
 					}
 				});
 			});

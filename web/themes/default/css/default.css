@@ -139,10 +139,6 @@ aside.nav .glyphicon-power{
 .member h2{
 	text-align: center;
 }
-.avatar{
-	width: 100px;
-	height: 100px;
-}
 body{
 	background-position: center;
 	background-attachment: fixed;
@@ -220,7 +216,6 @@ body{
 	width: 100%;
 	height: 100%;
 }
-
 .member .avatar{
 	width: 100px;
 	height: 100px;
@@ -272,16 +267,20 @@ form .file{
 	opacity: .5;
 }
 .discussion .avatar{
-	width: 48px;
-	height: 48px;
-	float: left;
+	width: 4em;
+	height: 4em;
+	position: absolute;
+	top: 0;
 }
 .discussion .avatar img{
 	width: 100%;
+	height: 100%;
 }
 .discussion .self .avatar{
 	right: 0;
-	float: right;
+}
+.discussion .other .avatar{
+	left: 0;
 }
 .discussion .message{
 	margin-left: 65px;
