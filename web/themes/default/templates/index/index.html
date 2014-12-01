@@ -1,7 +1,7 @@
-<div id="profile" class="row profile">
+<div id="#<%= model.username%>" class="row profile">
 	<% if(model.background.length > 0){%>
 	<style>
-	#profile{
+	#<%= model.username %>{
 		background-image: url("<%= model.background %>");
 	}
 	</style>	

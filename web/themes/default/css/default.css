@@ -82,7 +82,7 @@ aside.nav button{
 	z-index: 3;
 	width: 50px;
 	height: 50px;
-	background: rgba(0,0,0,.5);
+	background: rgba(255, 122, 5, 1);
 	border: 0;
 	border-radius: 20%;
 	border-top-left-radius: 0;
