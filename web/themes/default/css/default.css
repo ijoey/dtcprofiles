@@ -241,6 +241,8 @@ form .file{
 	padding: 0;
 }
 .discussion time{
+	font-size: .8em;
+	font-weight: 800;
 }
 .discussion .sent{
 	border: none;
@@ -295,10 +297,10 @@ form .file{
 	line-height: 1em;
 	position: relative;
 }
-.discussion .message article{
+.discussion .message .text{
 	padding: 5px;
 }
-.discussion .message article img{
+.discussion .message div img{
 	max-width: 100%;
 }
 
@@ -314,11 +316,21 @@ form .file{
 	right: -7px;
 	z-index: -2;
 }
+.discussion .other .message:nth-child(2):after{
+	border: 10px solid transparent;
+	border-bottom-color: rgb(228, 229, 234);
+	top: -5px;
+	left: -7px;
+	z-index: -2;
+}
 .discussion .self .message{
 	margin-right: 65px;
 	margin-left: 0;
 }
-
+.discussion .other .message{
+	background: rgb(228, 229, 234);
+	color: black;
+}
 .comment button{
 	display: none;
 }

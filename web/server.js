@@ -595,7 +595,9 @@ stopBus.iHandle('Stop', {
 });
 bus.iSubscribeTo('CustomerSignedUpForEmail', {host: 'localhost', port: 8129}, {
 	update: function(event){
-		chatServer.sockets.emit('message', {from: hubot, text: event.body + ' just signed up for the SBOTD email'});
+		var message = {from: hubot, time: (new Date()).getTime(), text: event.body + ' just signed up for the SBOTD email'};
+		client.send(new Commands.NewMessage(message));
+		chatServer.sockets.emit('message', message);
 	}
 });
 

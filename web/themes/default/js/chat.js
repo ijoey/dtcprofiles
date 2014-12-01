@@ -290,7 +290,7 @@
 			views.forEach(function(v){
 				if(v.messageWasSubmitted) v.messageWasSubmitted(model);
 			});
-			if(model.text.length > 0) socket.emit('message', model.text);
+			if(model.text && model.text.length > 0) socket.emit('message', model.text);
 		};
 		self.connected = function(nicknames){
 			views.forEach(function(v){
