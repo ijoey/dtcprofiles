@@ -67,31 +67,16 @@
 				this.divs[current].style['display'] = 'block';
 			}
 			, update: function(key, old, v){
-				var div = this.template.cloneNode(true);
-				var name = div.querySelector('#name');
-				var avatar = div.querySelector('#avatar');
-				var username = div.querySelector('#username');
-				var background = div.querySelector('#background');
-				var page = div.querySelector('#page');
-				div.id = v.username;
-				name.id = 'name_' + v.username;
-				avatar.id = 'avatar_' + v.username;
-				username.id = 'username_' + v.username;
-				if(background){
-					background.id = 'background_' + v.username;
-					background.src = v.background;					
-				}
-				page.id = 'page_' + v.username;
-				if(v.background && v.background.length > 0){
-					div.style['background-image'] = 'url("' + v.background + '")';
-				}
-				name.innerHTML = v.name;
-				avatar.src = v.avatar;
-				username.value = v.username;
-				page.innerHTML = v.page;
-				div.style['display'] = 'none';
-				this.divs.push(div);
-				this.container.parentNode.insertBefore(div, this.container);
+				var member = v;
+				member.backgroundStyle = member.background.length > 0 ? 'background-image: url("' + member.background + '")' : '';
+				member.avatarImage = member.avatar.length > 0 ? '<img class="img-circle avatar" src="' + member.avatar + '" />' : '';
+				var template = Hogan.compile(this.template.outerHTML);
+				var div = document.createElement('div');
+				div.id = member.username;
+				div.innerHTML = template.render(member);
+				div.firstChild.style['display'] = 'none';
+				this.divs.push(div.firstChild);
+				this.container.parentNode.insertBefore(div.firstChild, this.container);
 			}
 			, remove: function(key, old, v){
 				var i = 0;
@@ -131,49 +116,10 @@
 				members.forEach(function(member){
 					this.model.push(member);
 				}.bind(this));
+				this.delegate.finishedGettingMembers(this);
 			}
 		};
 		
-		return self;
-	};
-	n.CreateNextMemberGetter = function(delegate, model){
-		var self = {
-			model: model
-			, delegate: delegate
-			, fetchNext: function(username, callback){
-				var xhr = new XMLHttpRequest();
-				var self = this;
-				var url = '/members/after/' + username + '.phtml';
-				if(username === null) url = '/members/first.phtml';
-				console.log(url);
-				xhr.open("GET", url, true);
-				xhr.onload = function(e){
-					self.onload(e);
-					if(callback) {
-						callback(e.target);
-					}
-				};
-				xhr.send();
-			}
-			, onload: function(e){
-				this.model.clear();
-				this.model.push(e.target.responseText);
-			}
-			, start: function(){
-				var self = this;
-				this.interval = setInterval(function(){
-					self.fetchNext(document.getElementById('username').value);					
-				}, 11000);
-			}
-			, stop: function(){
-				clearInterval(this.interval);
-			}
-			, restart: function(){
-				this.stop();
-				this.start();
-			}
-		};
-		self.interval = null;
 		return self;
 	};
 	
@@ -226,13 +172,7 @@
 	win.app = (function(win, member){
 		var menu = new n.Observable({});
 		var period = 10000;
-		var background = document.getElementById('background');
-		var member = {name: document.getElementById('name').innerHTML
-			, avatar: document.getElementById('avatar').src
-			, username: document.getElementById('username').value
-			, background: background ? background.value : null};
-		
-		var members = new n.Observable.List([member]);
+		var members = new n.Observable.List([]);
 		var pages = new n.Observable.List([]);
 		var counter = 0;
 		var self = {
@@ -264,14 +204,17 @@
 			, stop: function(){
 				clearInterval(this.interval);
 			}
-			, member: member
+			, finishedGettingMembers: function(){
+				memberFlipperView.show();
+			}
+			, member: null
 			, members: members
 			, pages: pages
 		};
 		var pageTemplate = document.createElement('div');
 		pageTemplate.className = 'pages';
 		document.getElementById('main').appendChild(pageTemplate);
-		var memberFlipperView = n.CreateMemberFlipper(document.getElementById(member.username), members);
+		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('{{username}}'), members);
 		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
 		var memberGetter = n.CreateMemberGetter(self, members);
 		var pageGetter = n.CreatePageGetter(document.getElementById('main'), pages, self);
@@ -285,9 +228,6 @@
 		
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
 		self.start();
-		setTimeout(function(){
-			memberFlipperView.container.style['display'] = 'none';			
-		}, period);
 		return self;
 	})(win);
 })(MM, window);

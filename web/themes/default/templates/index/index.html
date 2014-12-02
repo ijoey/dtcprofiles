@@ -1,13 +1,10 @@
-<div id="<%= model.username%>" class="row profile" style="<%= model.background.length > 0 ? 'background-url: url(' + model.background + ')' : ''%>">
+<div id="{{username}}" class="row profile" style="display: none;{{backgroundStyle}};">
 	<article class="container">
 		<header class="header">
-			<h1 id="name"><%= model.name %></h1>
-			<img class="img-circle avatar" id="avatar" src="<%= model.avatar %>" />		
+			<h1 id="name">{{name}}</h1>
+			{{{avatarImage}}}
 		</header>
-		<div id="page" class="page"><%- model.page %></div>
+		<div id="page" class="page">{{{page}}}</div>
 	</article>
-	<input type="hidden" id="username" value="<%= model.username %>" />
-	<% if(model.background.length > 0){%>
-	<img id="background" class="background" src="<%= model.background %>" />
-	<%}%>
+	<input type="hidden" id="username" value="{{username}}" />
 </div>

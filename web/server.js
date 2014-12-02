@@ -188,18 +188,13 @@ app.get("/sitemap.:format", function(req, resp, next){
 });
 
 app.get(['/index.:format?', '/'], function(req, resp, next){
-	fs.readFile(__dirname + '/data/index.json', null, function(err, data){
-		if(err) console.log('index', err);
-		var member = new Member(JSON.parse(data ? data.toString() : '{}'));
-		member.page = Ejs.render(member.page ? member.page : '', {model: member, request: req});
-		resp.represent({view: 'index/index'
-			, resource: new Resource({
-				members: members
-				, css: ['member']
-				, js: ['index']
-			})
-			, model: member});
-	});
+	resp.represent({view: 'index/index'
+		, resource: new Resource({
+			members: members
+			, css: ['member']
+			, js: ['index']
+		})
+		, model: null});
 });
 app.get('/login.:format?', function(req, resp, next){
 	resp.represent({view: 'login/index'
@@ -245,7 +240,7 @@ app.get('/members/:member_name.:format?', function(req, resp, next){
 		}
 		member = new Member(JSON.parse(data));
 		resp.represent({view: 'index/index'
-		, resource: new Resource({css: ['member']})
+		, resource: new Resource({js: ['members'], css: ['member']})
 		, model: member});
 	});
 });

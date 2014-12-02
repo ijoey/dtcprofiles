@@ -175,7 +175,7 @@ body{
 .profile .avatar{
 	position: absolute;
 	top: 5px;
-	right: -10em;
+	right: -85%;
 	width: 10em;
 	height: 10em;
 	z-index: 3;
