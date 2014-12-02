@@ -17,7 +17,7 @@
 				if(this.model.length === 0) return;
 				this.divs[current].style['display'] = 'none';
 				current++;
-				if(current >= this.model.length -1 ) current = 0;
+				if(current >= this.model.length) current = 0;
 				this.divs[current].style['display'] = 'block';
 			}
 			, update: function(key, old, v){
@@ -63,7 +63,7 @@
 				if(this.model.length === 0) return;
 				this.divs[current].style['display'] = 'none';
 				current++;
-				if(current >= this.model.length -1 ) current = 0;
+				if(current >= this.model.length ) current = 0;
 				this.divs[current].style['display'] = 'block';
 			}
 			, update: function(key, old, v){
@@ -129,6 +129,7 @@
 		var self = {
 			model: model
 			, container: container
+			, delegate: delegate
 			, fetchNext: function(callback){
 				var file = this.model.next();
 				var url = '/pages/' + file + '.json';
@@ -162,6 +163,8 @@
 					if(callback){
 						callback(response);						
 					}
+					this.delegate.finishedGettingPages(this);
+					
 				}.bind(this);
 				xhr.send();
 			}
@@ -171,7 +174,7 @@
 	};
 	win.app = (function(win, member){
 		var menu = new n.Observable({});
-		var period = 10000;
+		var period = 15000;
 		var members = new n.Observable.List([]);
 		var pages = new n.Observable.List([]);
 		var counter = 0;
@@ -191,13 +194,11 @@
 				this.interval = setInterval(function(){
 					counter++;
 					if(counter % 2 === 0){
-						memberFlipperView.flip();						
-						memberFlipperView.show();
 						pageFlipperView.hide();
+						memberFlipperView.flip();
 					}else{
-						pageFlipperView.flip();
 						memberFlipperView.hide();
-						pageFlipperView.show();
+						pageFlipperView.flip();
 					}
 				}.bind(this), period);
 			}
@@ -206,6 +207,9 @@
 			}
 			, finishedGettingMembers: function(){
 				memberFlipperView.show();
+			}
+			, finishedGettingPages: function(){
+				this.start();
 			}
 			, member: null
 			, members: members
@@ -227,7 +231,6 @@
 		//self.views.push(memberFlipperView);
 		
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
-		self.start();
 		return self;
 	})(win);
 })(MM, window);
