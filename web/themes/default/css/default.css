@@ -342,13 +342,21 @@ form .file{
 	right: 0;
 	width: 100%;
 }
-.signin{
-	width: 40%;
-	position: absolute;
-	top: 10%;
-	left: 50%;
-	margin-left: -25%;
+.signin .input-group{
+	margin-bottom: -1px;
 }
-.signin p{
-	color: #939393;
+.signin .input-group .form-control{
+	border-radius: 0;
+}
+.signin .input-group{
+	width: 50%;
+	margin-left: 25%;
+}
+.signin .input-group-addon{
+	border-radius: 0;
+}
+.signin .btn-primary{
+	position: absolute;
+	right: 100px;
+	top: 206px;
 }
