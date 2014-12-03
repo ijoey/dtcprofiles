@@ -331,10 +331,7 @@ app.delete('/pages/:file.:format?', function(req, resp, next){
 			var extensionStripped = files.map(function(f){
 				return f.replace(/\.\w+$/, '');
 			});
-			resp.represent({
-				view: 'pages/index'
-				, resource: new Resource({})
-				, model: new Folder(extensionStripped)});
+			resp.redirect('/pages');
 		});
 	});
 });

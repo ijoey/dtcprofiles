@@ -9,7 +9,7 @@
 			<textarea class="form-control" rows="5" placeholder="Page" name="contents" id="contents"><%- model.page.contents %></textarea>
 		</div>
 	</fieldset>
-	<% if(model.page.file !== null){%>
+	<% if(model.page.name !== null){%>
 	<input type="hidden" name="_method" value="put" />		
 	<%}%>
 	<button class="btn btn-default" type="submit">Save</button>
