@@ -6,6 +6,15 @@ var member = <%- JSON.stringify(request.user)%>;
 		<button type="submit">Sign out</button>
 	</fieldset>
 </form>
+<footer id="comment" class="comment">
+	<form>
+		<fieldset>
+			<legend></legend>
+			<textarea name="message"></textarea>
+			<button type="submit">Send</button>
+		</fieldset>
+	</form>
+</footer>
 <div id="messagesView" class="centered content view">
 	<ol class="discussion">
 		<li class="other">
@@ -60,12 +69,3 @@ var member = <%- JSON.stringify(request.user)%>;
 		</li>
 	</ul>
 </div>
-<footer id="comment" class="comment">
-	<form>
-		<fieldset>
-			<legend></legend>
-			<textarea name="message"></textarea>
-			<button type="submit">Send</button>
-		</fieldset>
-	</form>
-</footer>

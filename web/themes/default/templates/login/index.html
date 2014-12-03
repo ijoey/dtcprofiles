@@ -1,8 +1,13 @@
-<form method="post">
+<form method="post" class="signin" role="form">
 	<fieldset>
-		<legend>Sign in</legend>
-		<input type="text" name="username" placeholder="username" />
-		<input type="password" name="password" placeholder="password" />
+		<legend>Sign in to DTC Profiles</legend>
+		<p>Please note that if you haven't signed in before, the first time you do just creates your record in the system. You'll have to sign in a second time upon initial setup to be able to edit your profile.</p>
+		<div class="form-group">
+			<input type="text" name="username" id="username" placeholder="LDAP ID" class="form-control" required autofocus />
+		</div>
+		<div class="form-group">
+			<input type="password" name="password" placeholder="Password" class="form-control" required />
+		</div>
 	</fieldset>
-	<button type="submit">Sign in</button>
+	<button type="submit" class="btn btn-lg btn-primary btn-block">Sign in</button>
 </form>

@@ -342,3 +342,13 @@ form .file{
 	right: 0;
 	width: 100%;
 }
+.signin{
+	width: 40%;
+	position: absolute;
+	top: 10%;
+	left: 50%;
+	margin-left: -25%;
+}
+.signin p{
+	color: #939393;
+}
