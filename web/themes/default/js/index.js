@@ -213,6 +213,7 @@
 		};
 		self.left.addEventListener('click', self.leftClicked.bind(self), true);
 		self.right.addEventListener('click', self.rightCLicked.bind(self), true);
+		self.container.style['display'] = 'block';
 		return self;
 	};
 	
