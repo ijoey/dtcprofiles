@@ -360,3 +360,6 @@ form .file{
 	right: 100px;
 	top: 206px;
 }
+.carousel-control{
+	z-index: 3;
+}

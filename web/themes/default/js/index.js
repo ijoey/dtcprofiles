@@ -6,11 +6,22 @@
 			, model: model
 			, divs: []
 			, template: null
+			, name: 'PageFlipper'
 			, delegate: delegate
 			, hide: function(){
 				this.divs[current].style['display'] = 'none';
 			}
 			, show: function(){
+				this.divs[current].style['display'] = 'block';
+			}
+			, forward: function(){
+				this.flip();
+			}
+			, backward: function(){
+				if(this.model.length === 0) return;
+				this.divs[current].style['display'] = 'none';
+				current--;
+				if(current <= 0) current = 0;
 				this.divs[current].style['display'] = 'block';
 			}
 			, flip: function(){
@@ -51,12 +62,23 @@
 			container: container
 			, model: model
 			, divs: []
+			, name: 'MemberFlipper'
 			, template: null
 			, delegate: delegate
 			, hide: function(){
 				this.divs[current].style['display'] = 'none';
 			}
 			, show: function(){
+				this.divs[current].style['display'] = 'block';
+			}
+			, forward: function(){
+				this.flip();
+			}
+			, backward: function(){
+				if(this.model.length === 0) return;
+				this.divs[current].style['display'] = 'none';
+				current--;
+				if(current <= 0 ) current = this.model.length - 1;
 				this.divs[current].style['display'] = 'block';
 			}
 			, flip: function(){
@@ -172,15 +194,39 @@
 		
 		return self;
 	};
+	n.CreateViewScroller = function(container, model, delegate){
+		var self = {
+			container: container
+			, model: model
+			, delegate: delegate
+			, left: container.querySelector('.left')
+			, right: container.querySelector('.right')
+			, leftClicked: function(e){
+				this.delegate.leftWasClicked(e.target);
+			}
+			, rightCLicked: function(e){
+				this.delegate.rightWasClicked(e.target);
+			}
+			, shift: function(distance){
+				this.left.style['margin-left'] = distance + 'px';
+			}
+		};
+		self.left.addEventListener('click', self.leftClicked.bind(self), true);
+		self.right.addEventListener('click', self.rightCLicked.bind(self), true);
+		return self;
+	};
+	
 	win.app = (function(win, member){
 		var menu = new n.Observable({});
 		var period = 15000;
 		var members = new n.Observable.List([]);
 		var pages = new n.Observable.List([]);
 		var counter = 0;
+		var flipper = null;
 		var self = {
 			views: []
 			, interval: null
+			, waiter: null
 			, pageWasSelected: function(publisher, info){
 				memberFlipperView.show();
 				pageFlipperView.hide();
@@ -190,26 +236,48 @@
 					this.start();
 				}
 			}
+			, swapFlipper: function(){
+				return flipper.name === 'PageFlipper' ? memberFlipperView : pageFlipperView;
+			}
 			, start: function(){
 				this.interval = setInterval(function(){
-					counter++;
-					if(counter % 2 === 0){
-						pageFlipperView.hide();
-						memberFlipperView.flip();
+					if(counter <= flipper.model.length){
+						flipper.flip();
 					}else{
-						memberFlipperView.hide();
-						pageFlipperView.flip();
+						counter = 0;
+						flipper.hide();
+						flipper = this.swapFlipper();
+						flipper.show();
 					}
+					counter++;
 				}.bind(this), period);
 			}
 			, stop: function(){
 				clearInterval(this.interval);
+				counter = 0;
 			}
 			, finishedGettingMembers: function(){
-				memberFlipperView.show();
+				flipper = memberFlipperView;
+				flipper.show();
+				this.start();
 			}
 			, finishedGettingPages: function(){
+			}
+			, leftWasClicked: function(target){
+				this.stop();
+				flipper.backward();
 				this.start();
+			}
+			, rightWasClicked: function(target){
+				this.stop();
+				flipper.forward();
+				this.start();
+			}
+			, menuHasOpened: function(publisher, info){
+				carouselNavigation.shift(100);
+			}
+			, menuHasClosed: function(publisher, info){
+				carouselNavigation.shift(-100);
 			}
 			, member: null
 			, members: members
@@ -222,15 +290,12 @@
 		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
 		var memberGetter = n.CreateMemberGetter(self, members);
 		var pageGetter = n.CreatePageGetter(document.getElementById('main'), pages, self);
+		var carouselNavigation = n.CreateViewScroller(document.getElementById('carouselControls'), null, self);
 		memberGetter.fetch();
 		pageGetter.fetch();
-		
-		//TODO: I want to handle swipes trying to slide the page, but I need to 
-		// build teh chat app first.
-		//var slider = n.CreateDocumentSlider(document.getElementById('main'), members, self);
-		//self.views.push(memberFlipperView);
-		
 		n.NotificationCenter.subscribe('pageWasSelected', self, null);
+		n.NotificationCenter.subscribe('menuHasOpened', self, null);
+		n.NotificationCenter.subscribe('menuHasClosed', self, null);
 		return self;
 	})(win);
 })(MM, window);
