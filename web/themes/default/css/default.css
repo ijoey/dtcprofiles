@@ -1,0 +1,365 @@
+html {
+	-webkit-text-size-adjust: 100%;
+	font-size: 100%;
+}
+body {
+	color: black;
+	line-height: 1.7857;
+	font-weight: normal;
+	font-style: normal;
+	font-family: "Proxima Nova", "helvetica neue", helvetica, verdana, arial, tahoma, sans-serif;
+}
+
+h1{
+	font-size: 40px;
+}
+h2{
+	font-size: 30px;
+}
+h3{
+	font-size: 25px;
+}
+h4, p{
+	font-size: 20px;
+}
+h5{
+	font-size: 20px;
+}
+h6{
+	font-size: 0px;
+}
+h1,h2,h3,h4,h5,h6
+, .h1, .h2, .h3, .h4, .h5, .h6{
+	text-align: left;
+	line-height: 1em;
+	letter-spacing: 1px;
+	padding: 0;
+	margin: 0 0 .5em 0;
+	font-weight: 400;
+	font-family: "Myriad Set Pro", "Helvetica Neue", "Helvetica", "Arial", "Verdana", "sans-serif";
+}
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}
+#main{
+	padding-right: 0;
+	padding-left: 0;
+	margin-right: 0;
+	margin-left: 0;
+}
+.comment legend{
+	border-bottom: 0;
+}
+aside.nav{
+	width: 100px;
+}
+aside.nav nav{
+	width: 100px;
+	height: 100%;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: -100px;
+	background: rgba(0,0,0,.5);
+}
+aside.nav nav a{
+	display: block;
+	font-size: 55px;
+	width: 100%;
+	height: 75px;
+	text-align: center;
+	line-height: 75px;
+}
+aside.nav nav a:hover{
+	text-decoration: none;
+}
+aside.nav nav a span{
+	display: none;
+}
+aside.nav button{
+	position: fixed;
+	top: 50%;
+	left: -15px;
+	z-index: 3;
+	width: 50px;
+	height: 50px;
+	background: rgba(255, 122, 5, 1);
+	border: 0;
+	border-radius: 20%;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	font-size: 2em;
+	line-height: 1.6em;
+}
+aside.nav button span{
+	display: block;
+	text-indent: -1000px;
+}
+aside.nav .members{
+	background-image: url("/public/images/members.png");
+	background-repeat: no-repeat;
+	background-position: center;
+	position: absolute;
+	top: 40%;
+}
+aside.nav .glyphicon-power{
+	position: absolute;
+	top: 90%;
+	left: 0;
+}
+.header .home{
+	width: 57px;
+	height: 57px;
+	display: block;
+	position: fixed;
+	top: 1em;
+	left: 1em;
+}
+.header .home span{
+	display: none;
+}
+.logo{
+	background-image: url("/public/images/apple-touch-icon-ipad.png");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+.glyphicon-power:before {
+  content: "\e017";
+}
+.on{
+	color: white;
+}
+.off{
+	color: gray;
+}
+.member{
+	width: 10vw;
+	float: left;
+	text-align: center;
+}
+.member h2{
+	text-align: center;
+}
+body{
+	background-position: center;
+	background-attachment: fixed;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+.profile{
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	background-position: top left;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: cover;
+	background-color: black;
+}
+.profile .background{
+	display: none;
+}
+.row.profile{
+	margin-right: 0;
+	margin-left: 0;
+}
+.profile .container{
+	width: 50%;
+	position: relative;
+	color: white;
+}
+
+.profile .avatar{
+	position: absolute;
+	top: 5px;
+	left: -75px;
+	width: 75px;
+	height: 75px;
+	z-index: 3;
+}
+.profile .avatar img{
+	width: 100%;
+	height: 100%;
+}
+.profile .avatar input{
+	width: 100%;
+}
+.profile .header{
+	padding: 0;
+	margin: 0;
+}
+.profile .container{
+	z-index: 2;
+	border-radius: 15px;
+	margin-left: 100px;
+	padding: 10px;
+}
+
+.pages{
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+}
+.pages header{
+	width: 100%;
+}
+.pages header *{
+	text-align: center;
+}
+.pages article{
+	width: 100%;
+	height: 100%;
+}
+.member .avatar{
+	width: 100px;
+	height: 100px;
+}
+
+form .file{
+	height: 100px;
+}
+.off-canvas{
+	
+}
+.discussion {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	overflow: auto;
+}
+.discussion li {
+	position: relative;
+	max-width: 80%;
+	clear: both;
+	float: left;
+	padding: 0;
+}
+.discussion time{
+	font-size: .8em;
+	font-weight: 800;
+}
+.discussion .sent{
+	border: none;
+	height: 20px;
+	width: 100%;
+	background: none;
+}
+.discussion .message time{
+	display: none;
+}
+
+.discussion .self {
+	float: right;
+	margin-left: auto;
+	text-align: right;
+}
+.discussion li>time{
+	display: block;
+	position: relative;
+	text-align: center;
+	top: 0;
+	left: 0;
+	margin-left: 0;
+	opacity: .5;
+}
+.discussion .avatar{
+	width: 4em;
+	height: 4em;
+	position: absolute;
+	top: 0;
+}
+.discussion .avatar img{
+	width: 100%;
+	height: 100%;
+}
+.discussion .self .avatar{
+	right: 0;
+}
+.discussion .other .avatar{
+	left: 0;
+}
+.discussion .message{
+	margin-left: 65px;
+	margin-right: 0;
+	margin-bottom: 1px;
+	padding-top: 0;
+	padding-bottom: 0;
+	text-align: left;
+	background: rgb(5, 160, 255);
+	border-radius: 20px;
+	color: white;
+	line-height: 1em;
+	position: relative;
+}
+.discussion .message .text{
+	padding: 5px;
+}
+.discussion .message div img{
+	max-width: 100%;
+}
+
+.discussion .message:nth-child(2):after{
+	content: '';
+	display: block;
+	position: absolute;
+}
+.discussion .self .message:nth-child(2):after{
+	border: 10px solid transparent;
+	border-bottom-color: rgb(5, 160, 255);
+	top: -5px;
+	right: -7px;
+	z-index: -2;
+}
+.discussion .other .message:nth-child(2):after{
+	border: 10px solid transparent;
+	border-bottom-color: rgb(228, 229, 234);
+	top: -5px;
+	left: -7px;
+	z-index: -2;
+}
+.discussion .self .message{
+	margin-right: 65px;
+	margin-left: 0;
+}
+.discussion .other .message{
+	background: rgb(228, 229, 234);
+	color: black;
+}
+.comment button{
+	display: none;
+}
+.comment textarea{
+	width: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+}
+.signin .input-group{
+	margin-bottom: -1px;
+}
+.signin .input-group .form-control{
+	border-radius: 0;
+}
+.signin .input-group{
+	width: 50%;
+	margin-left: 25%;
+}
+.signin .input-group-addon{
+	border-radius: 0;
+}
+.signin .btn-primary{
+	position: absolute;
+	right: 100px;
+	top: 206px;
+}
+.carousel-control{
+	z-index: 3;
+}

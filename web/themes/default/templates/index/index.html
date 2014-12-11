@@ -1,0 +1,18 @@
+<nav id="carouselControls" style="display: none;">
+	<a class="left carousel-control" href="javascript:void(0);" data-slide="prev">
+	    <span class="icon-prev"></span>
+	</a>
+	<a class="right carousel-control" href="javascript:void(0);" data-slide="next">
+		<span class="icon-next"></span>
+	</a>
+</nav>
+<div id="{{username}}" class="row profile" style="display: none;{{backgroundStyle}};">
+	<article class="container">
+		<header class="header">
+			<h1 id="name">{{name}}</h1>
+			{{{avatarImage}}}
+		</header>
+		<div id="page" class="page">{{{page}}}</div>
+	</article>
+	<input type="hidden" id="username" value="{{username}}" />
+</div>

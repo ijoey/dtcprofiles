@@ -26,3 +26,8 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+config.js
+data
+boundaries/subscribers
+uploads

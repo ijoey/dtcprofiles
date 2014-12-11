@@ -1,0 +1,17 @@
+<ul>
+<% model.files.forEach(function(file){%>
+	<li>
+		<label><%= file.name %></label>
+		<% if(request.isAuthenticated()){%>
+			<a href="/page/<%= file.name %>" title="<%= file %>" class="btn btn-primary btn-lg active" role="button">Edit</a>
+			<form method="post" action="/pages/<%= file.name %>" role="form">
+				<input type="hidden" name="_method" value="delete" />
+				<button type="submit" class="btn btn-default">Delete</button>
+			</form>
+		<%}%>
+	</li>
+<%})%>
+</ul>
+<% if(request.isAuthenticated()){%>
+<a href="/page/" title="New Page">Add</a>
+<%}%>
