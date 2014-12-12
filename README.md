@@ -10,7 +10,6 @@ node web/processor
 node web/server
 
 This app has a rudimentary, in-memory distributed message bus and the processor handles all write operations asynchronously.
-
 # Originally hosted on a Kano/Raspberry Pi
 ---
 Change Chromium's start page by editing this file:

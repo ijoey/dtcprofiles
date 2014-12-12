@@ -1,12 +1,12 @@
 {
-  "name": "blog.joeyguerra.com",
-  "version": "0.0.3",
+  "name": "dtcprofiles",
+  "version": "0.0.4",
   "private": false,
-  "subdomain": "blog",
-  "description":"Javascript blog engine written in Node.",
+  "subdomain": "profiles",
+  "description":"Profiles app to showcase people at the DTC.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ijoey/joeyguerra.git"
+    "url": "https://github.com/ijoey/dtcprofiles.git"
   },
   "scripts": {
     "start": "nodemon web/server.js",
@@ -35,7 +35,7 @@
     "npmlog": "*",
     "passport": "*",
     "passport-local": "*",
-    "represent": "git://github.com/ijoey/represent#master",
+    "chilla": "*",
     "serve-static": "*",
 	"jws":"*",
 	"xml2js":"*"

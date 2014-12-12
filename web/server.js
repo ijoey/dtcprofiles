@@ -47,7 +47,7 @@ function Resource(obj){
 	this.description = "profiles app";
 	for(var key in obj) this[key] = obj[key];
 }
-var represent = require('represent').Represent({
+var represent = require('chilla').Chilla({
 	themeRoot: rootPath + '/web/themes/' + config.theme
 	, appPath: rootPath + '/web'
 });
