@@ -285,8 +285,9 @@
 			, pages: pages
 		};
 		var pageTemplate = document.createElement('div');
+		var main = document.getElementById('main');
 		pageTemplate.className = 'pages';
-		document.getElementById('main').appendChild(pageTemplate);
+		main.appendChild(pageTemplate);
 		var memberFlipperView = n.CreateMemberFlipper(document.getElementById('{{username}}'), members);
 		var pageFlipperView = n.CreatePageFlipper(pageTemplate, pages);
 		var memberGetter = n.CreateMemberGetter(self, members);

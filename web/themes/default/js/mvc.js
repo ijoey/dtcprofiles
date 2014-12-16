@@ -228,6 +228,10 @@ if(!MM) var MM = {};
 		, unsubscribe: function(subscriber){
 			this.observable.unsubscribe(subscriber);
 		}
+		, last: function(){
+			if(innerList.length === 0) return null;
+			return innerList[innerList.length - 1];
+		}
 	};
 	
 	namespace.View = function View(container, controller, model){
