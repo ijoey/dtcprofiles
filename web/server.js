@@ -56,14 +56,6 @@ function createFolderIfDoesntExist(folder){
 		fs.mkdirSync(folder);
 	}
 }
-function findFirstMember(resp){
-	Persistence.member.findFirst(function(err, member){
-		resp.represent({view: 'index/index'
-			, resource: new Resource({title: member.name, css: ['member']})
-			, model: member});
-	});
-}
-
 createFolderIfDoesntExist(config.dataPath);
 createFolderIfDoesntExist(webDataFolder);
 createFolderIfDoesntExist(uploadsFolder);
@@ -592,6 +584,7 @@ bus.iSubscribeTo('BackgroundWasChanged', {host: 'localhost', port: 8126}, {
 		chatServer.sockets.emit('BackgroundWasChanged', event.body)
 	}
 });
+
 bus.iSubscribeTo('MessageWasSent', {host: 'localhost', port: 8126}, {
 	update: function(event){
 		if(event.body.text.indexOf('hubot') > -1){
@@ -670,6 +663,20 @@ bots.push(
 		}
 	}
 );
+
+bus.iSubscribeTo('MessageWasSent', {host: 'localhost', port: 8126}, {
+	update: function(event){
+		if(event.body.text.indexOf('hubot') > -1){
+			var hubotCommand = /^hubot\s(.*)/ig.exec(event.body.text)[1];
+			bots.forEach(function(bot){
+				if(bot.doesUnderstand(hubotCommand)){
+					bot.execute(hubotCommand, chatServer.sockets);
+				}
+			})
+		}
+		Persistence.message.refresh();
+	}
+});
 
 function synchMostRecentMember(){
 	Persistence.member.findMostRecentlyActive({active: {"$lt":(new Date()).getTime()}}, function(err, member){

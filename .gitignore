@@ -27,7 +27,27 @@ node_modules
 # Users Environment Variables
 .lock-wscript
 
-config.js
 data
 boundaries/subscribers
 uploads
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+*.DS_Store
+*.env
+*.db
+.idea
+pids
+logs
+results
+web/data/
+web/subscribers/
+npm-debug.log
+node_modules/
+config.js
+uploads/
